@@ -7,8 +7,8 @@
 // SCL and SDA lines pulled to +3.3 V with 10 k resistors (part of breakout module)
 
 #include <stdint.h>
-#include "../inc/tm4c123gh6pm.h"
-#include "PCF8523.h"
+#include "../../../inc/tm4c123gh6pm.h"
+#include "../inc/PCF8523.h"
 
 #define I2C_MCS_ACK             0x00000008  // Data Acknowledge Enable
 #define I2C_MCS_DATACK          0x00000008  // Acknowledge Data
