@@ -1,16 +1,17 @@
 Dependencies for Project 'JASP_4C123', Target 'JASP_Phone': (DO NOT MODIFY !)
-F (.\startup.s)(0x5D6EC063)(--cpu Cortex-M4 -g --apcs=interwork -I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 526" --pd "TM4C123GH6PM SETA 1"--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d)
-F (.\main.c)(0x5DE09AA6)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\startup.s)(0x5DE1F315)(--cpu Cortex-M4 -g --apcs=interwork -I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 526" --pd "TM4C123GH6PM SETA 1"--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d)
+F (.\main.c)(0x5DE1F2BE)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599FA01C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599FA01C)
-I (Drivers/inc/PCF8523.h)(0x5DE0948E)
+I (Drivers/inc/PCF8523.h)(0x5DE1DAAA)
 I (Periphs/inc/PLL.h)(0x5D6EC063)
 I (Periphs/inc/UART.h)(0x5DDB1530)
-F (.\Drivers\src\PCF8523.c)(0x5DE099A7)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\pcf8523.o --omf_browse .\objects\pcf8523.crf --depend .\objects\pcf8523.d)
+I (Periphs/inc/ILI9341.h)(0x5DB3AFC1)
+F (.\Drivers\src\PCF8523.c)(0x5DE1DA7B)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\pcf8523.o --omf_browse .\objects\pcf8523.crf --depend .\objects\pcf8523.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (Drivers\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)
-I (Drivers\src\../inc/PCF8523.h)(0x5DE0948E)
+I (Drivers\src\../inc/PCF8523.h)(0x5DE1DAAA)
 F (.\Periphs\src\UART.c)(0x5DE09AB3)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\uart.o --omf_browse .\objects\uart.crf --depend .\objects\uart.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (Periphs\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)
@@ -18,4 +19,9 @@ I (Periphs\src\../inc/UART.h)(0x5DDB1530)
 F (.\Periphs\src\PLL.c)(0x5DE09A84)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\pll.o --omf_browse .\objects\pll.crf --depend .\objects\pll.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (Periphs\src\../inc/PLL.h)(0x5D6EC063)
+I (Periphs\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)
+F (.\Periphs\src\ILI9341.c)(0x5DE1DDF9)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\ili9341.o --omf_browse .\objects\ili9341.crf --depend .\objects\ili9341.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599FA01C)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
+I (Periphs\src\../inc/ILI9341.h)(0x5DB3AFC1)
 I (Periphs\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)

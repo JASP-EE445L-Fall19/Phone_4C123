@@ -22,6 +22,8 @@
 
 #define RTC_ADDR 		0x68			// slave addr for PCF
 #define TIME_BASE		0x03			// Base addr
+#define PCF_INIT_CTL2	0x80 
+#define CTL2_ADDR		0x02
 
 #define MAXRETRIES              5           // number of receive attempts before giving up
 
@@ -43,7 +45,9 @@ void PCF8523_I2C0_Init(void){
   GPIO_PORTB_AMSEL_R &= ~0x0C;          // 7) disable analog functionality on PB2,3
   I2C0_MCR_R = I2C_MCR_MFE;      // 9) master function enable
   I2C0_MTPR_R = 24;              // 8) configure for 100 kbps clock
-  // 20*(TPR+1)*20ns = 10us, with TPR=24
+  // 20*(TPR+1)*20ns = 10us, with TPR=24	
+		
+	//I2C_RTC_Send(RTC_ADDR, CTL2_ADDR, PCF_INIT_CTL2);	// Sends the CTL to enable battery switch-over
 }
 
 uint8_t checkError() {
@@ -206,13 +210,13 @@ uint8_t I2C_RTC_Recv(int8_t slave, uint8_t register_base_addr) {
 	return (I2C0_MDR_R&0xFF);
 }
 
-void bin2bcd(int val, char* arr) {
+void bcd2arr(int val, char* arr) {
 	arr[0] = ((val >> 4) & 0x07) + '0';
 	arr[1] = (val & 0x0F) + '0';
 	arr[2] = 0;
 }
 
-void getTimeAndDate(DateTime* dateTime) {
+int getTimeAndDate(DateTime* dateTime) {
 	uint8_t RTC_Buf[7];
 	int status = I2C_RTC_Recv_List(RTC_ADDR, TIME_BASE, RTC_Buf, 7);
 	
@@ -225,10 +229,10 @@ void getTimeAndDate(DateTime* dateTime) {
 	dateTime->day = day_string[dateTime->day_int];
 	dateTime->month = RTC_Buf[5];
 	dateTime->year = RTC_Buf[6];
-
+	return status;
 }
 	
-void setTimeAndDate(DateTime* dateTime) {
+int setTimeAndDate(DateTime* dateTime) {
 	uint8_t time_info[7] = {dateTime->seconds, 
 													dateTime->minutes,
 													dateTime->hours,
@@ -238,4 +242,5 @@ void setTimeAndDate(DateTime* dateTime) {
 													dateTime->year
 	};
 	int status = I2C_RTC_Send_List(RTC_ADDR, TIME_BASE, time_info, 7);										
+	return status;
 }

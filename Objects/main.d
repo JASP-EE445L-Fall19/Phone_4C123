@@ -5,3 +5,4 @@
 .\objects\main.o: Drivers/inc/PCF8523.h
 .\objects\main.o: Periphs/inc/PLL.h
 .\objects\main.o: Periphs/inc/UART.h
+.\objects\main.o: Periphs/inc/ILI9341.h

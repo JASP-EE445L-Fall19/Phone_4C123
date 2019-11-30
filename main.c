@@ -34,6 +34,9 @@
 #include "Drivers/inc/PCF8523.h"
 #include "Periphs/inc/PLL.h"
 #include "Periphs/inc/UART.h"
+#include "Periphs/inc/ILI9341.h"
+//#include "lvgl/lvgl.h"
+
 // For debug purposes, this program may peek at the I2C0 Master
 // Control/Status Register to try to provide a more meaningful
 // diagnostic message in the event of an error.  The rest of the
@@ -57,7 +60,7 @@
 #define RTC_ADDR 		0x68			// slave addr for PCF
 #define TIME_BASE		0x03			// Base addr
 
-
+#define INC_TIME	  5
 // delay function for testing from sysctl.c
 // which delays 3*ulCount cycles
 #ifdef __TI_COMPILER_VERSION__
@@ -79,142 +82,77 @@
   }
 
 #endif
-// function parses raw 16-bit number from temperature sensor in form:
-// rawdata[0] = 0
-// rawdata[15:8] 8-bit signed integer temperature
-// rawdata[7:4] 4-bit unsigned fractional temperature (units 1/16 degree C)
-//  or
-// rawdata[0] = 1
-// rawdata[15:7] 9-bit signed integer temperature
-// rawdata[6:3] 4-bit unsigned fractional temperature (units 1/16 degree C)
-void parseTemp(unsigned short rawData, int * tempInt, int * tempFra){
-  if(rawData&0x0001){  // 13-bit mode
-    *tempInt = rawData>>7;
-    if(rawData&0x8000){// negative value
-      *tempFra = (16 - ((rawData>>3)&0xF))*10000/16;
-                                                 // treat as 9-bit signed
-      *tempInt = (*tempInt) - 1512;              // subtract 512 to make integer portion signed
-                                                 // subtract extra 1,000 so integer portion is
-                                                 // still negative in the case of -0.XXXX
-                                                 // (never display thousands digit)
-      if(((*tempFra) > 0) && (*tempFra) < 10000){// fractional part "borrows" from integer part
-        *tempInt = (*tempInt) + 1;
-      }
-    }
-    else{
-      *tempFra = ((rawData>>3)&0xF)*10000/16;
-    }
-  }
-  else{
-    *tempInt = rawData>>8;
-    if(rawData&0x8000){// negative value
-      *tempFra = (16 - ((rawData>>4)&0xF))*10000/16;
-                                                 // treat as 8-bit signed
-      *tempInt = (*tempInt) - 1256;              // subtract 256 to make integer portion signed
-                                                 // subtract extra 1,000 so integer portion is
-                                                 // still negative in the case of -0.XXXX
-                                                 // (never display thousands digit)
-      if(((*tempFra) > 0) && (*tempFra) < 10000){// decimal part "borrows" from integer part
-        *tempInt = (*tempInt) + 1;
-      }
-    }
-    else{
-      *tempFra = ((rawData>>4)&0xF)*10000/16;
-    }
-  }
-}
-// function sends temperature integer and decimal components to UART
-// in form:
-// XXX.XXXX or -XXX.XXXX
-// tempInt is signed integer value of temperature
-// tempFra is unsigned fractional value of temperature (units 1/10000 degree C)
-void displayTemp(int * tempInt, int * tempFra){
-  uint32_t index = 0;               // string index
-  char str[10];                           // holds 9 characters
-  // first character is '-' if negative
-  if((*tempInt) < 0){
-    *tempInt = -1*(*tempInt);
-    str[index] = '-';
-    index = index + 1;
-  }
-  // next character is hundreds digit if not zero
-  if(((*tempInt)/100)%10 != 0){
-    str[index] = (((*tempInt)/100)%10) + '0';
-    index = index + 1;
-  // hundreds digit is not zero so next character is tens digit
-    str[index] = (((*tempInt)/10)%10) + '0';
-    index = index + 1;
-  }
-  // hundreds digit is zero so next character is tens digit only if not zero
-  else if(((*tempInt)/10)%10 != 0){
-    str[index] = (((*tempInt)/10)%10) + '0';
-    index = index + 1;
-  }
-  // next character is ones digit
-  str[index] = ((*tempInt)%10) + '0';
-  index = index + 1;
-  // next character is '.'
-  str[index] = '.';
-  index = index + 1;
-  // next character is tenths digit
-  str[index] = (((*tempFra)/1000)%10) + '0';
-  index = index + 1;
-  // next character is hundredths digit
-  str[index] = (((*tempFra)/100)%10) + '0';
-  index = index + 1;
-  // next character is thousandths digit
-  str[index] = (((*tempFra)/10)%10) + '0';
-  index = index + 1;
-  // next character is ten thousandths digit
-  str[index] = ((*tempFra)%10) + '0';
-  index = index + 1;
-  // fill in any remaining characters with ' '
-  while(index < 9){
-    str[index] = ' ';
-    index = index + 1;
-  }
-  // final character is null terminater
-  str[index] = 0;
-  // send string to UART
-  UART_OutChar('\r');
-  UART_OutString(str);
-}
-
-void itoa(char* string, uint32_t val) {
-	if (val < 10) {
-		string[0] = val + '0';
-		string[1] = 0;
-		return;
-	}
-	itoa(string + 1, val / 10);
-	string[0] = val % 10;
-}
-
 
 extern int status;
 extern int ack_ct;
-
-uint8_t RTC_Buf[10];
-
+DateTime dateTime;
 int stat;
-int seconds, minutes;
 int i = 0;
-//volatile uint16_t heading = 0;
-//volatile uint8_t controlReg = 0;
+	
+	
+/*void Timer0_Init(int32_t period){
+	volatile int delay = 2;
+	SYSCTL_RCGCTIMER_R |= 0x01;   // 0) activate TIMER0
+  delay++;
+	delay = SYSCTL_RCGCTIMER_R;
+	TIMER0_CTL_R = 0x00000000;    // 1) disable TIMER0A during setup
+  TIMER0_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
+  TIMER0_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
+  TIMER0_TAILR_R = period-1;    // 4) reload value
+  TIMER0_TAPR_R = 0;            // 5) bus clock resolution
+  TIMER0_ICR_R = 0x00000001;    // 6) clear TIMER0A timeout flag
+  TIMER0_IMR_R = 0x00000001;    // 7) arm timeout interrupt
+  NVIC_PRI4_R = (NVIC_PRI4_R&0x00FFFFFF)|0x80000000; // 8) priority 4
+// interrupts enabled in the main program after all devices initialized
+// vector number 35, interrupt number 19
+  NVIC_EN0_R = 1<<19;           // 9) enable IRQ 19 in NVIC
+  TIMER0_CTL_R = 0x00000001;    // 10) enable TIMER0A
+}
+
+void Timer0A_Handler(void) {
+  TIMER0_ICR_R = TIMER_ICR_TATOCINT;// acknowledge timer0A timeout
+	lv_tick_inc(INC_TIME);
+}
+*/
+//static lv_disp_buf_t disp_buf;
+//static lv_color_t buf[LV_HOR_RES_MAX * 10];                     /*Declare a buffer for 10 lines*/
+//void LittlevGL_Init() {
+//	Timer0_Init(INC_TIME * 80000);
+//	lv_init();
+//	lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 10);    /*Initialize the display buffer*/
+//	lv_disp_drv_t disp_drv;               /*Descriptor of a display driver*/
+//	lv_disp_drv_init(&disp_drv);          /*Basic initialization*/
+//	disp_drv.flush_cb = my_disp_flush;    /*Set your driver function*/
+//	disp_drv.buffer = &disp_buf;          /*Assign the buffer to the display*/
+//	lv_disp_drv_register(&disp_drv);      /*Finally register the driver*/
+//}
+
+
 int main(void){
   PLL_Init(Bus80MHz);
   UART_Init(5);
 	UART_OutString("Example I2C");
-  PCF8523_I2C0_Init();
-   
+	PCF8523_I2C0_Init();
+	/* LittleVGL */
+	ILI9341_InitR(INITR_BLACKTAB);
+  ILI9341_OutString("Hello");
+	//LittlevGL_Init();
+	
 	while(1){
   //test display and number parser (can safely be skipped)
 	#if DEBUGPRINTS
-		//i = (i + 1)%100;
+		//i++;
 		// Send Code
 		if (i == 1) {
-			uint8_t arr[3] = {0x50, 0x59, 0x23};
-			stat = I2C_RTC_Send_List(RTC_ADDR, TIME_BASE, arr, 3);		// Send initial time
+			dateTime.seconds = 0x00;
+			dateTime.minutes = 0x59; 
+			dateTime.hours = 0x23;
+			dateTime.date = 0;
+			dateTime.day_int = 0;
+			dateTime.month = 0;
+			dateTime.year = 0;
+		
+			stat = setTimeAndDate(&dateTime);		// Send initial time
 			UART_OutString("Send Stat: ");
 			UART_OutUDec(stat);
 			UART_OutString(" ");
@@ -223,12 +161,17 @@ int main(void){
 			UART_OutString("     ");
 		}
 		
-		int err_code = I2C_RTC_Recv_List(RTC_ADDR, TIME_BASE, RTC_Buf, 3);
+		/*int ctl = I2C_RTC_Recv(RTC_ADDR, 0x02);
+		UART_OutString("Ctl: ");
+		UART_OutUDec(ctl);
+		UART_OutString(" ");
+		*/
+		int err_code = getTimeAndDate(&dateTime);
 	
 		char sec_arr[3], min_arr[3], hr_arr[3];
-		bin2bcd(RTC_Buf[0], sec_arr);
-		bin2bcd(RTC_Buf[1], min_arr);
-		bin2bcd(RTC_Buf[2], hr_arr);
+		bcd2arr(dateTime.seconds, sec_arr);
+		bcd2arr(dateTime.minutes, min_arr);
+		bcd2arr(dateTime.hours, hr_arr);
 		/* Debug Prints */
 		UART_OutString("Recv Sec: ");
 		UART_OutString(sec_arr);
@@ -249,17 +192,4 @@ int main(void){
 		Delay(DEBUGWAIT/2);
 	#endif
   }
-/*  while(1){
-                                          // write commands to 0x42
-    I2C_Send1(0x42, 'A');                 // use command 'A' to sample
-    Delay(100000);                        // wait 6,000 us for sampling to finish
-                                          // read from 0x43 to get data
-    heading = I2C_Recv2(0x43);            // 0 to 3599 (units: 1/10 degree)
-// test sending multiple bytes and receiving single byte
-                                          // write commands to 0x42
-    I2C_Send2(0x42, 'g', 0x74);           // use command 'g' to read from RAM 0x74
-    Delay(1167);                          // wait 70 us for RAM access to finish
-    controlReg = I2C_Recv(0x43);          // expected 0x50 as default
-    Delay(16666666);                      // wait 1 sec
-  }*/
 }

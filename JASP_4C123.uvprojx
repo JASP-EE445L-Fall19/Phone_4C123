@@ -407,6 +407,11 @@
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\PLL.c</FilePath>
             </File>
+            <File>
+              <FileName>ILI9341.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\ILI9341.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

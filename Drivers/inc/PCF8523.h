@@ -35,13 +35,13 @@ typedef struct DateTime_t {
 */
 void PCF8523_I2C0_Init(void);
 
-/** bin2bcd Function
+/** bcd2arr Function
 * @brief	   Converts binary number into BCD format
 * @details	 No pins used
 *	@param[in] val the number to be converted
 *	@param[in] arr pointer to string representation of number
 */
-void bin2bcd(int val, char* arr);
+void bcd2arr(int val, char* arr);
 
 /** setTimeAndDate Function 
 * @brief 		 Sets the date and time with provided values  
@@ -49,7 +49,7 @@ void bin2bcd(int val, char* arr);
 * @param[in] dateTime Object used to hold date and time information
 * 
 */
-void setTimeAndDate(DateTime* dateTime);
+int setTimeAndDate(DateTime* dateTime);
 	
 /** getTimeAndDate Function 
 * @brief 		 Get the date and time from RTC into object 
@@ -57,7 +57,7 @@ void setTimeAndDate(DateTime* dateTime);
 * @param[in] dateTime Object used to hold date and time information
 * 
 */
-void getTimeAndDate(DateTime* dateTime);
+int getTimeAndDate(DateTime* dateTime);
 
 uint8_t I2C_RTC_Send(int8_t slave, uint8_t register_addr, uint8_t data2);
 uint8_t I2C_RTC_Recv(int8_t slave, uint8_t register_base_addr);
