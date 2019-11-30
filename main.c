@@ -35,8 +35,10 @@
 #include "Periphs/inc/PLL.h"
 #include "Periphs/inc/UART.h"
 #include "Periphs/inc/ILI9341.h"
-//#include "lvgl/lvgl.h"
+#include "lvgl/lvgl.h"
+#include "../inc/tm4c123gh6pm.h"
 
+void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32_t size_in_px_cnt);
 // For debug purposes, this program may peek at the I2C0 Master
 // Control/Status Register to try to provide a more meaningful
 // diagnostic message in the event of an error.  The rest of the
@@ -89,8 +91,9 @@ DateTime dateTime;
 int stat;
 int i = 0;
 	
-	
-/*void Timer0_Init(int32_t period){
+
+/* LITTLE VGL STUFF */	
+void Timer0_Init(int32_t period){
 	volatile int delay = 2;
 	SYSCTL_RCGCTIMER_R |= 0x01;   // 0) activate TIMER0
   delay++;
@@ -109,24 +112,58 @@ int i = 0;
   TIMER0_CTL_R = 0x00000001;    // 10) enable TIMER0A
 }
 
+int isDisplayed = 0;
 void Timer0A_Handler(void) {
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;// acknowledge timer0A timeout
 	lv_tick_inc(INC_TIME);
+	isDisplayed = 0;
 }
-*/
-//static lv_disp_buf_t disp_buf;
-//static lv_color_t buf[LV_HOR_RES_MAX * 10];                     /*Declare a buffer for 10 lines*/
-//void LittlevGL_Init() {
-//	Timer0_Init(INC_TIME * 80000);
-//	lv_init();
-//	lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 10);    /*Initialize the display buffer*/
-//	lv_disp_drv_t disp_drv;               /*Descriptor of a display driver*/
-//	lv_disp_drv_init(&disp_drv);          /*Basic initialization*/
-//	disp_drv.flush_cb = my_disp_flush;    /*Set your driver function*/
-//	disp_drv.buffer = &disp_buf;          /*Assign the buffer to the display*/
-//	lv_disp_drv_register(&disp_drv);      /*Finally register the driver*/
-//}
 
+
+static lv_disp_buf_t disp_buf;
+static lv_color_t buf[LV_HOR_RES_MAX * 20];                     /*Declare a buffer for 10 lines*/
+lv_disp_drv_t disp_drv;               /*Descriptor of a display driver*/
+
+void my_disp_flush(lv_disp_t* disp, const lv_area_t* area, lv_color_t* color_p) {
+	int32_t x, y;
+    for(y = area->y1; y <= area->y2; y++) {
+        for(x = area->x1; x <= area->x2; x++) {
+            ILI9341_DrawPixel(x, 319 - y, vGL2ILI_Color(color_p->ch.red, color_p->ch.green, color_p->ch.blue));  /* Put a pixel to the display.*/
+            color_p++;
+        }
+    }
+    lv_disp_flush_ready(disp);         /* Indicate you are ready with the flushing*/
+}
+
+void LittlevGL_Init() {
+	Timer0_Init(INC_TIME * 80000);
+	lv_init();
+	/* Set default theme */
+	lv_theme_t * th = lv_theme_material_init(20, NULL);
+	lv_theme_set_current(th);
+	//lv_style_scr.body.main_color = LV_COLOR_RED;
+	//lv_style_scr.body.grad_color = LV_COLOR_RED;
+	
+	lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 20);    /*Initialize the display buffer*/
+	lv_disp_drv_init(&disp_drv);          /*Basic initialization*/
+	disp_drv.flush_cb = my_disp_flush;    /*Set your driver function*/
+	disp_drv.buffer = &disp_buf;          /*Assign the buffer to the display*/
+	lv_disp_drv_register(&disp_drv);      /*Finally register the driver*/
+}
+
+void createButton(char* text, int x, int y, int w, int h) {
+	lv_obj_t* btn = lv_btn_create(lv_scr_act(), NULL);     /*Add a button the current screen*/
+	lv_obj_set_pos(btn, x, y);                            /*Set its position*/
+	lv_obj_set_size(btn, w, h);                          /*Set its size*/
+	lv_obj_t * label = lv_label_create(btn, NULL);          /*Add a label to the button*/
+	lv_label_set_text(label, text);                     /*Set the labels text*/
+}
+
+void createSlider() {
+	lv_obj_t * slider = lv_slider_create(lv_scr_act(), NULL);
+	lv_obj_set_width(slider, 40);                        /*Set the width*/
+	lv_obj_align(slider, NULL, LV_ALIGN_CENTER, 0, 0);    /*Align to the center of the parent (screen)*/
+}
 
 int main(void){
   PLL_Init(Bus80MHz);
@@ -135,10 +172,19 @@ int main(void){
 	PCF8523_I2C0_Init();
 	/* LittleVGL */
 	ILI9341_InitR(INITR_BLACKTAB);
-  ILI9341_OutString("Hello");
-	//LittlevGL_Init();
+	//ILI9341_FillScreen(ILI9341_GREEN);
+	//ILI9341_OutString("Hello");
+	LittlevGL_Init();
+	createButton("Joshua", 10, 20, 100, 50);
+	createButton("Arjun", 120, 20, 100, 50);
+	createButton("Sihyung", 10, 90, 100, 50);
+	createButton("Paulina", 120, 90, 100, 50);
 	
 	while(1){
+		if(!isDisplayed) {
+			lv_task_handler();
+			isDisplayed = 1;
+		}
   //test display and number parser (can safely be skipped)
 	#if DEBUGPRINTS
 		//i++;

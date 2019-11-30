@@ -192,6 +192,14 @@ void ILI9341_FillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color
 // Output: 16-bit color
 uint16_t ILI9341_Color565(uint8_t r, uint8_t g, uint8_t b);
 
+//------------vGL2ILI_Color------------
+// Pass R (5-bit) ,G (6-bit) ,B (5-bit) and get back 16-bit packed color. (for interface with LittlevGL)
+// Input: r red value
+//        g green value
+//        b blue value
+// Output: 16-bit color
+uint16_t vGL2ILI_Color(uint8_t red, uint8_t green, uint8_t blue);
+
 //------------ILI9341_SwapColor------------
 // Swaps the red and blue values of the given 16-bit packed color;
 // green is unchanged.
