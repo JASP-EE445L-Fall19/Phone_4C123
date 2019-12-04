@@ -124,3 +124,39 @@ lv_obj_t* createMainText(char* text) {
 	lv_label_set_long_mode(main_label, LV_LABEL_LONG_SROLL_CIRC);	
 	return main_label;
 }
+
+lv_obj_t* createPhoneLabel(char* label) {
+	lv_obj_t* text_label = lv_label_create(lv_scr_act(), NULL);
+	lv_label_set_text(text_label, label);                     /*Set the labels text*/
+	lv_obj_align(text_label, lv_scr_act(), LV_ALIGN_IN_TOP_MID, 0, 10);
+	return text_label;
+}
+
+lv_obj_t* createPhoneTextArea() {
+	lv_obj_t* ta1 = lv_ta_create(lv_scr_act(), NULL);
+  lv_obj_set_size(ta1, 200, 40);
+  lv_obj_align(ta1, NULL, LV_ALIGN_IN_TOP_MID, 0, 40);
+  lv_ta_set_cursor_type(ta1, LV_CURSOR_BLOCK);
+  lv_ta_set_text(ta1, "");    /*Set an initial text*/
+	
+	return ta1;
+}
+
+
+lv_obj_t* createTextLabel(char* label) {
+	lv_obj_t* text_label = lv_label_create(lv_scr_act(), NULL);
+	lv_label_set_text(text_label, label);                     /*Set the labels text*/
+	lv_obj_align(text_label, lv_scr_act(), LV_ALIGN_IN_TOP_MID, 0, 100);
+	return text_label;
+}
+	
+lv_obj_t* createTextMessageArea() {
+	lv_obj_t* ta1 = lv_ta_create(lv_scr_act(), NULL);
+  lv_obj_set_size(ta1, 200, 120);
+  lv_obj_align(ta1, NULL, LV_ALIGN_IN_TOP_MID, 0, 120);
+  lv_ta_set_cursor_type(ta1, LV_CURSOR_BLOCK);
+  lv_ta_set_text(ta1, "");    /*Set an initial text*/
+	
+	return ta1;
+}
+

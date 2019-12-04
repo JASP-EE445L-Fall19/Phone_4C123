@@ -1,6 +1,6 @@
 Dependencies for Project 'JASP_4C123', Target 'JASP_Phone': (DO NOT MODIFY !)
 F (.\startup.s)(0x5DE30EA2)(--cpu Cortex-M4 -g --apcs=interwork -I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 526" --pd "TM4C123GH6PM SETA 1"--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d)
-F (.\main.c)(0x5DE75931)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\main.c)(0x5DE7730C)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599FA01C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599FA01C)
@@ -9,7 +9,7 @@ I (Periphs/inc/PLL.h)(0x5D6EC063)
 I (Periphs/inc/UART.h)(0x5DDB1530)
 I (Periphs/inc/ILI9341.h)(0x5DE2BF72)
 I (../inc/tm4c123gh6pm.h)(0x5D6EC066)
-I (UI/UI_Components.h)(0x5DE72E9B)
+I (UI/UI_Components.h)(0x5DE772C8)
 I (UI/../lvgl/lvgl.h)(0x5DE1E980)
 I (UI/../lvgl/src/lv_version.h)(0x5DE1E980)
 I (UI/../lvgl/src/lv_misc/lv_log.h)(0x5DE1E980)
@@ -130,11 +130,11 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599FA01C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (Periphs\src\../inc/ILI9341.h)(0x5DE2BF72)
 I (Periphs\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)
-F (.\UI\UI_Components.c)(0x5DE751A8)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\ui_components.o --omf_browse .\objects\ui_components.crf --depend .\objects\ui_components.d)
+F (.\UI\UI_Components.c)(0x5DE77396)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\ui_components.o --omf_browse .\objects\ui_components.crf --depend .\objects\ui_components.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (UI\../../inc/tm4c123gh6pm.h)(0x5D6EC066)
 I (UI\../Periphs/inc/ILI9341.h)(0x5DE2BF72)
-I (UI\UI_Components.h)(0x5DE72E9B)
+I (UI\UI_Components.h)(0x5DE772C8)
 I (UI\../lvgl/lvgl.h)(0x5DE1E980)
 I (UI\../lvgl/src/lv_version.h)(0x5DE1E980)
 I (UI\../lvgl/src/lv_misc/lv_log.h)(0x5DE1E980)
@@ -232,7 +232,7 @@ I (UI\../lvgl/src/lv_objx/lv_preload.h)(0x5DE1E980)
 I (UI\../lvgl/src/lv_objx/lv_calendar.h)(0x5DE1E980)
 I (UI\../lvgl/src/lv_objx/lv_spinbox.h)(0x5DE1E980)
 I (UI\../lvgl/src/lv_draw/lv_img_cache.h)(0x5DE1E980)
-F (.\UI\UI_Components.h)(0x5DE72E9B)()
+F (.\UI\UI_Components.h)(0x5DE772C8)()
 F (.\Periphs\src\matrix.c)(0x5DE74D06)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\matrix.o --omf_browse .\objects\matrix.crf --depend .\objects\matrix.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (Periphs\src\../inc/FIFO.h)(0x5D6EC07A)
