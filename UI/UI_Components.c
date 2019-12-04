@@ -96,7 +96,7 @@ lv_obj_t* createCallIcon(const lv_img_dsc_t* img) {
 	lv_label_set_text(call_label, "Call (*)");                     /*Set the labels text*/
 	lv_obj_align(call_label, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
 	
-	return bitmap;
+	return btn;
 }
 
 
@@ -113,7 +113,7 @@ lv_obj_t* createTextIcon(const lv_img_dsc_t* img) {
 	lv_label_set_text(text_label, "Text (#)");                     /*Set the labels text*/
 	lv_obj_align(text_label, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
 	
-	return bitmap;
+	return btn;
 }
 
 

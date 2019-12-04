@@ -6,6 +6,7 @@
 ".\objects\pll.o"
 ".\objects\ili9341.o"
 ".\objects\ui_components.o"
+".\objects\matrix.o"
 ".\objects\lv_port_disp_template.o"
 ".\objects\lv_port_fs_template.o"
 ".\objects\lv_port_indev_template.o"

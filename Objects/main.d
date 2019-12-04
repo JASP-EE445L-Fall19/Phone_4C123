@@ -162,3 +162,4 @@
 .\objects\main.o: Bitmaps/Longhorn.h
 .\objects\main.o: Bitmaps/Call_icon.h
 .\objects\main.o: Bitmaps/Text_icon.h
+.\objects\main.o: Periphs/inc/matrix.h

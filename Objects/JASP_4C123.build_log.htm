@@ -27,19 +27,13 @@ Project File Date:  12/03/2019
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'JASP_Phone'
-compiling UI_Components.c...
-UI\../lvgl/src/lv_hal/../lv_misc/lv_color.h(378): warning:  #111-D: statement is unreachable
+compiling main.c...
+UI/../lvgl/src/lv_hal/../lv_misc/lv_color.h(378): warning:  #111-D: statement is unreachable
       return 0;
-UI\UI_Components.c(46): warning:  #167-D: argument of type "lv_disp_t *" is incompatible with parameter of type "lv_disp_drv_t *"
-      lv_disp_flush_ready(disp);         /* Indicate you are ready with the flushing*/
-UI\UI_Components.c(60): warning:  #513-D: a value of type "void (*)(lv_disp_t *, const lv_area_t *, lv_color_t *)" cannot be assigned to an entity of type "void (*)(struct _disp_drv_t *, const lv_area_t *, lv_color_t *)"
-  	disp_drv.flush_cb = my_disp_flush;    /*Set your driver function*/
-UI\UI_Components.c(126): warning:  #1-D: last line of file ends without a newline
-  }
-UI\UI_Components.c: 4 warnings, 0 errors
+main.c: 1 warning, 0 errors
 linking...
-Program Size: Code=62896 RO-data=81892 RW-data=556 ZI-data=25260  
-".\Objects\JASP_4C123.axf" - 0 Error(s), 4 Warning(s).
+Program Size: Code=64560 RO-data=81936 RW-data=624 ZI-data=25280  
+".\Objects\JASP_4C123.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -53,7 +47,7 @@ Package Vendor: Keil
   C:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

@@ -41,7 +41,10 @@
 #include "Bitmaps/Longhorn.h"
 #include "Bitmaps/Call_icon.h"
 #include "Bitmaps/Text_icon.h"
+
+#include "Periphs/inc/matrix.h"
 #include <string.h>
+
 LV_IMG_DECLARE(Longhorn);
 LV_IMG_DECLARE(Call_icon);
 LV_IMG_DECLARE(Text_icon);
@@ -71,6 +74,11 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 #define RTC_ADDR 		0x68			// slave addr for PCF
 #define TIME_BASE		0x03			// Base addr
 
+enum screens {
+	MAIN_SCREEN,
+	CALL_SCREEN,
+	TEXT_SCREEN
+} curScreen = MAIN_SCREEN, nextScreen = MAIN_SCREEN;
 
 // delay function for testing from sysctl.c
 // which delays 3*ulCount cycles
@@ -105,7 +113,7 @@ int updateClock = 0;
 char* full_time;
 char* full_date;	
 char* displayStr;
-	
+
 void Timer1_ClockUpdate_Init(uint32_t period){
   SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
   TIMER1_CTL_R = 0x00000000;    // 1) disable TIMER1A during setup
@@ -127,7 +135,69 @@ void Timer1A_Handler(void) {
 	updateClock = 1;
 }
 
+void getDisplayTime() {
+	int err_code = getTimeAndDate(&dateTime);
+	char sec_arr[3], min_arr[3], hr_arr[20], day_arr[30], date_arr[3], month_arr[12];
+	bcd2arr(dateTime.seconds, sec_arr);
+	bcd2arr(dateTime.minutes, min_arr);
+	bcd2arr(dateTime.hours, hr_arr);
+	bcd2arr(dateTime.date, date_arr);
+	strcpy(day_arr, dateTime.day);
+	strcpy(month_arr, dateTime.month);
+			
+	full_time = strcat(strcat(strcat(strcat(hr_arr, ":"), min_arr), ":"), sec_arr); 
+	full_date = strcat(strcat(strcat(day_arr, date_arr), " "), month_arr);
+	displayStr = strcat(strcat(full_date, "\n"), full_time);
+	lv_label_set_align(time_label, LV_LABEL_ALIGN_CENTER);
+	lv_label_set_text(time_label, full_date);
+}
 
+
+void handleInput(char input) {
+	if (!input) 
+		return;
+	if (input == '*' && curScreen == MAIN_SCREEN) {
+		nextScreen = CALL_SCREEN;
+	}
+	if (input == '#' && curScreen == CALL_SCREEN) {
+		nextScreen = MAIN_SCREEN;
+	}
+	return;
+}
+
+lv_obj_t *call_btn, *text_btn, *time_field, *mainText;
+
+void mainDisplay() {
+		call_btn = createCallIcon(&Call_icon);
+		text_btn = createTextIcon(&Text_icon);
+		time_field = createTime("Time: TBD", 10, 20, 200, 60);
+		mainText = createMainText("JASP: Use it and Gasp!");
+}
+
+void mainDelete() {
+	lv_obj_del(mainText);
+	lv_obj_del(text_btn);
+	lv_obj_del(call_btn);
+	lv_obj_del(time_field);
+}
+
+lv_obj_t* k;
+void callDisplay() {
+	k = createMainText("Hello");
+	return;
+}
+void textDisplay() {
+}
+
+
+void callDelete() {
+	lv_obj_del(k);
+}
+void textDelete() {
+}
+
+void (*renderScreen[])() = {mainDisplay, callDisplay, textDisplay};	
+void (*deleteScreen[])() = {mainDelete, callDelete, textDelete};
 
 int main(void){
   PLL_Init(Bus80MHz);
@@ -138,10 +208,8 @@ int main(void){
 	/* LittleVGL */
 	ILI9341_InitR(INITR_BLACKTAB);
 	LittlevGL_Init();
-	lv_obj_t* call_bitmap = createCallIcon(&Call_icon);
-	lv_obj_t* text_bitmap = createTextIcon(&Text_icon);
-	lv_obj_t* time_field = createTime("Time: TBD", 10, 20, 200, 60);
-	lv_obj_t* mainText = createMainText("JASP: Use it and Gasp!");
+	Matrix_Init();
+	mainDisplay();
 	#if SET_DATE_TIME
 		// Send Code
 			dateTime.seconds = 0x15;
@@ -162,28 +230,23 @@ int main(void){
 	#endif
 	while(1){
 		if(!isDisplayed) {
+			if (curScreen != nextScreen) {
+				lv_obj_clean(lv_scr_act());		// Clear screen
+				(*deleteScreen[curScreen])();	// Delete components
+				(*renderScreen[nextScreen])(); // Create components
+				curScreen = nextScreen;
+			}
 			lv_task_handler();
 			isDisplayed = 1;
 		}
 		if (updateClock) {
-			int err_code = getTimeAndDate(&dateTime);
-			char sec_arr[3], min_arr[3], hr_arr[20], day_arr[30], date_arr[3], month_arr[12];
-			bcd2arr(dateTime.seconds, sec_arr);
-			bcd2arr(dateTime.minutes, min_arr);
-			bcd2arr(dateTime.hours, hr_arr);
-			bcd2arr(dateTime.date, date_arr);
-			strcpy(day_arr, dateTime.day);
-			strcpy(month_arr, dateTime.month);
-			
-			full_time = strcat(strcat(strcat(strcat(hr_arr, ":"), min_arr), ":"), sec_arr); 
-			full_date = strcat(strcat(strcat(day_arr, date_arr), " "), month_arr);
-			displayStr = strcat(strcat(full_date, "\n"), full_time);
-			lv_label_set_align(time_label, LV_LABEL_ALIGN_CENTER);
-			lv_label_set_text(time_label, full_date);
+			getDisplayTime();
 			updateClock = 0;
 			isDisplayed = 0;
 		}
-
+		char num_input = Matrix_InChar();
+		handleInput(num_input);
+		
   //test display and number parser (can safely be skipped)
 	#if DEBUGPRINTS
 		/*int ctl = I2C_RTC_Recv(RTC_ADDR, 0x02);

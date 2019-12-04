@@ -422,6 +422,11 @@
               <FileType>5</FileType>
               <FilePath>.\UI\UI_Components.h</FilePath>
             </File>
+            <File>
+              <FileName>matrix.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\matrix.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
