@@ -412,6 +412,16 @@
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\ILI9341.c</FilePath>
             </File>
+            <File>
+              <FileName>UI_Components.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UI\UI_Components.c</FilePath>
+            </File>
+            <File>
+              <FileName>UI_Components.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UI\UI_Components.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

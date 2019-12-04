@@ -69,8 +69,8 @@ ARM Macro Assembler    Page 1
 ARM Macro Assembler    Page 2 
 
 
-   38 00000000 00001000 
-                       Stack   EQU              0x00001000  ;0x00000400
+   38 00000000 00000800 
+                       Stack   EQU              0x00000800  ;0x00001000
    39 00000000         
    40 00000000         ;*******************************************************
                        ***********************
@@ -93,16 +93,16 @@ ARM Macro Assembler    Page 2
 =3
    53 00000000         StackMem
    54 00000000                 SPACE            Stack
-   55 00001000         __initial_sp
-   56 00001000         
-   57 00001000         ;*******************************************************
+   55 00000800         __initial_sp
+   56 00000800         
+   57 00000800         ;*******************************************************
                        ***********************
-   58 00001000         ;
-   59 00001000         ; Allocate space for the heap.
-   60 00001000         ;
-   61 00001000         ;*******************************************************
+   58 00000800         ;
+   59 00000800         ; Allocate space for the heap.
+   60 00000800         ;
+   61 00000800         ;*******************************************************
                        ***********************
-   62 00001000                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+   62 00000800                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
    63 00000000         __heap_base
    64 00000000         HeapMem
@@ -144,7 +144,7 @@ ARM Macro Assembler    Page 3
                        ***********************
    88 00000000                 EXPORT           __Vectors
    89 00000000         __Vectors
-   90 00000000 00001000        DCD              StackMem + Stack ; Top of Stack
+   90 00000000 00000800        DCD              StackMem + Stack ; Top of Stack
                                                             
    91 00000004 00000000        DCD              Reset_Handler ; Reset Handler
    92 00000008 00000000        DCD              NMI_Handler ; NMI Handler
@@ -1087,7 +1087,7 @@ ARM Macro Assembler    Page 17
                        ***********************
   674 00000024                 END
               00000000 
-              00001000 
+              00000800 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
 ork --depend=.\objects\startup.d -o.\objects\startup.o -I.\RTE\_JASP_Phone -IC:
@@ -1118,7 +1118,7 @@ Symbol: StackMem
       At line 656 in file startup.s
       At line 658 in file startup.s
 
-__initial_sp 00001000
+__initial_sp 00000800
 
 Symbol: __initial_sp
    Definitions
@@ -2506,7 +2506,7 @@ Symbol: Heap
       At line 65 in file startup.s
       At line 657 in file startup.s
 
-Stack 00001000
+Stack 00000800
 
 Symbol: Stack
    Definitions

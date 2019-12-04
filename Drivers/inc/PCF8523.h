@@ -16,7 +16,8 @@ typedef struct DateTime_t {
 	uint8_t date;
 	uint8_t day_int;
 	char* day;
-	uint8_t month;
+	uint8_t month_int;
+	char* month;
 	uint8_t year;
 } DateTime;
 

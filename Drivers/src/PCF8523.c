@@ -7,6 +7,7 @@
 // SCL and SDA lines pulled to +3.3 V with 10 k resistors (part of breakout module)
 
 #include <stdint.h>
+#include <string.h>
 #include "../../../inc/tm4c123gh6pm.h"
 #include "../inc/PCF8523.h"
 
@@ -29,8 +30,8 @@
 
 int ack_ct = 0;
 uint8_t err_code = 0;
-
-char day_string[7][5] = {"Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"};	
+char day_string[7][9] = {"Sun, ", "Mon, ", "Tues, ", "Wed, ", "Thurs, ", "Fri, ", "Sat, "};	
+char month_string[12][12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 void PCF8523_I2C0_Init(void){
   SYSCTL_RCGCI2C_R |= 0x0001;           // activate I2C0
@@ -47,7 +48,7 @@ void PCF8523_I2C0_Init(void){
   I2C0_MTPR_R = 24;              // 8) configure for 100 kbps clock
   // 20*(TPR+1)*20ns = 10us, with TPR=24	
 		
-	//I2C_RTC_Send(RTC_ADDR, CTL2_ADDR, PCF_INIT_CTL2);	// Sends the CTL to enable battery switch-over
+	I2C_RTC_Send(RTC_ADDR, CTL2_ADDR, PCF_INIT_CTL2);	// Sends the CTL to enable battery switch-over
 }
 
 uint8_t checkError() {
@@ -227,7 +228,12 @@ int getTimeAndDate(DateTime* dateTime) {
 	dateTime->date = RTC_Buf[3];
 	dateTime->day_int = RTC_Buf[4];
 	dateTime->day = day_string[dateTime->day_int];
-	dateTime->month = RTC_Buf[5];
+	
+	int month = RTC_Buf[5];
+	dateTime->month_int = month;
+	int month_ind = ((month >> 4) & 1) * 10 + (month & 0x0F);
+	dateTime->month = month_string[month_ind];
+	
 	dateTime->year = RTC_Buf[6];
 	return status;
 }
@@ -238,7 +244,7 @@ int setTimeAndDate(DateTime* dateTime) {
 													dateTime->hours,
 													dateTime->date,
 													dateTime->day_int,
-													dateTime->month,
+													dateTime->month_int,
 													dateTime->year
 	};
 	int status = I2C_RTC_Send_List(RTC_ADDR, TIME_BASE, time_info, 7);										

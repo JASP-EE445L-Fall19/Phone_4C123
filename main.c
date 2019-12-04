@@ -35,8 +35,16 @@
 #include "Periphs/inc/PLL.h"
 #include "Periphs/inc/UART.h"
 #include "Periphs/inc/ILI9341.h"
-#include "lvgl/lvgl.h"
 #include "../inc/tm4c123gh6pm.h"
+#include "UI/UI_Components.h"
+#include "../lvgl/lvgl.h"
+#include "Bitmaps/Longhorn.h"
+#include "Bitmaps/Call_icon.h"
+#include "Bitmaps/Text_icon.h"
+#include <string.h>
+LV_IMG_DECLARE(Longhorn);
+LV_IMG_DECLARE(Call_icon);
+LV_IMG_DECLARE(Text_icon);
 
 void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32_t size_in_px_cnt);
 // For debug purposes, this program may peek at the I2C0 Master
@@ -50,7 +58,8 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 // This tests the math used to convert the raw temperature value
 // from the thermometer to a string that is displayed.  Verify
 // that the left and right columns are the same.
-#define DEBUGPRINTS 1
+#define DEBUGPRINTS 0
+#define SET_DATE_TIME 0
 // DEBUGWAIT is time between test prints as a parameter for the Delay() function
 // DEBUGWAIT==16,666,666 delays for 1 second between lines
 // This is useful if the computer terminal program has limited
@@ -62,7 +71,7 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 #define RTC_ADDR 		0x68			// slave addr for PCF
 #define TIME_BASE		0x03			// Base addr
 
-#define INC_TIME	  5
+
 // delay function for testing from sysctl.c
 // which delays 3*ulCount cycles
 #ifdef __TI_COMPILER_VERSION__
@@ -84,118 +93,63 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
   }
 
 #endif
-
+	
 extern int status;
 extern int ack_ct;
 DateTime dateTime;
 int stat;
 int i = 0;
+extern int isDisplayed;
+extern lv_obj_t* time_label;
+int updateClock = 0;
+char* full_time;
+char* full_date;	
+char* displayStr;
 	
-
-/* LITTLE VGL STUFF */	
-void Timer0_Init(int32_t period){
-	volatile int delay = 2;
-	SYSCTL_RCGCTIMER_R |= 0x01;   // 0) activate TIMER0
-  delay++;
-	delay = SYSCTL_RCGCTIMER_R;
-	TIMER0_CTL_R = 0x00000000;    // 1) disable TIMER0A during setup
-  TIMER0_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
-  TIMER0_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
-  TIMER0_TAILR_R = period-1;    // 4) reload value
-  TIMER0_TAPR_R = 0;            // 5) bus clock resolution
-  TIMER0_ICR_R = 0x00000001;    // 6) clear TIMER0A timeout flag
-  TIMER0_IMR_R = 0x00000001;    // 7) arm timeout interrupt
-  NVIC_PRI4_R = (NVIC_PRI4_R&0x00FFFFFF)|0x80000000; // 8) priority 4
+void Timer1_ClockUpdate_Init(uint32_t period){
+  SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
+  TIMER1_CTL_R = 0x00000000;    // 1) disable TIMER1A during setup
+  TIMER1_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
+  TIMER1_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
+  TIMER1_TAILR_R = period - 1;    // 4) reload value
+  TIMER1_TAPR_R = 0;            // 5) bus clock resolution
+  TIMER1_ICR_R = 0x00000001;    // 6) clear TIMER1A timeout flag
+  TIMER1_IMR_R = 0x00000001;    // 7) arm timeout interrupt
+  NVIC_PRI5_R = (NVIC_PRI5_R&0xFFFF00FF)|0x00008000; // 8) priority 4
 // interrupts enabled in the main program after all devices initialized
-// vector number 35, interrupt number 19
-  NVIC_EN0_R = 1<<19;           // 9) enable IRQ 19 in NVIC
-  TIMER0_CTL_R = 0x00000001;    // 10) enable TIMER0A
+// vector number 37, interrupt number 21
+  NVIC_EN0_R = 1<<21;           // 9) enable IRQ 21 in NVIC
+  TIMER1_CTL_R = 0x00000001;    // 10) enable TIMER1A
 }
 
-int isDisplayed = 0;
-void Timer0A_Handler(void) {
-  TIMER0_ICR_R = TIMER_ICR_TATOCINT;// acknowledge timer0A timeout
-	lv_tick_inc(INC_TIME);
-	isDisplayed = 0;
+void Timer1A_Handler(void) {
+	TIMER1_ICR_R = TIMER_ICR_TATOCINT;
+	updateClock = 1;
 }
 
 
-static lv_disp_buf_t disp_buf;
-static lv_color_t buf[LV_HOR_RES_MAX * 20];                     /*Declare a buffer for 10 lines*/
-lv_disp_drv_t disp_drv;               /*Descriptor of a display driver*/
-
-void my_disp_flush(lv_disp_t* disp, const lv_area_t* area, lv_color_t* color_p) {
-	int32_t x, y;
-    for(y = area->y1; y <= area->y2; y++) {
-        for(x = area->x1; x <= area->x2; x++) {
-            ILI9341_DrawPixel(x, 319 - y, vGL2ILI_Color(color_p->ch.red, color_p->ch.green, color_p->ch.blue));  /* Put a pixel to the display.*/
-            color_p++;
-        }
-    }
-    lv_disp_flush_ready(disp);         /* Indicate you are ready with the flushing*/
-}
-
-void LittlevGL_Init() {
-	Timer0_Init(INC_TIME * 80000);
-	lv_init();
-	/* Set default theme */
-	lv_theme_t * th = lv_theme_material_init(20, NULL);
-	lv_theme_set_current(th);
-	//lv_style_scr.body.main_color = LV_COLOR_RED;
-	//lv_style_scr.body.grad_color = LV_COLOR_RED;
-	
-	lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 20);    /*Initialize the display buffer*/
-	lv_disp_drv_init(&disp_drv);          /*Basic initialization*/
-	disp_drv.flush_cb = my_disp_flush;    /*Set your driver function*/
-	disp_drv.buffer = &disp_buf;          /*Assign the buffer to the display*/
-	lv_disp_drv_register(&disp_drv);      /*Finally register the driver*/
-}
-
-void createButton(char* text, int x, int y, int w, int h) {
-	lv_obj_t* btn = lv_btn_create(lv_scr_act(), NULL);     /*Add a button the current screen*/
-	lv_obj_set_pos(btn, x, y);                            /*Set its position*/
-	lv_obj_set_size(btn, w, h);                          /*Set its size*/
-	lv_obj_t * label = lv_label_create(btn, NULL);          /*Add a label to the button*/
-	lv_label_set_text(label, text);                     /*Set the labels text*/
-}
-
-void createSlider() {
-	lv_obj_t * slider = lv_slider_create(lv_scr_act(), NULL);
-	lv_obj_set_width(slider, 40);                        /*Set the width*/
-	lv_obj_align(slider, NULL, LV_ALIGN_CENTER, 0, 0);    /*Align to the center of the parent (screen)*/
-}
 
 int main(void){
   PLL_Init(Bus80MHz);
   UART_Init(5);
 	UART_OutString("Example I2C");
 	PCF8523_I2C0_Init();
+	Timer1_ClockUpdate_Init(10000000);
 	/* LittleVGL */
 	ILI9341_InitR(INITR_BLACKTAB);
-	//ILI9341_FillScreen(ILI9341_GREEN);
-	//ILI9341_OutString("Hello");
 	LittlevGL_Init();
-	createButton("Joshua", 10, 20, 100, 50);
-	createButton("Arjun", 120, 20, 100, 50);
-	createButton("Sihyung", 10, 90, 100, 50);
-	createButton("Paulina", 120, 90, 100, 50);
-	
-	while(1){
-		if(!isDisplayed) {
-			lv_task_handler();
-			isDisplayed = 1;
-		}
-  //test display and number parser (can safely be skipped)
-	#if DEBUGPRINTS
-		//i++;
+	lv_obj_t* call_bitmap = createCallIcon(&Call_icon);
+	lv_obj_t* text_bitmap = createTextIcon(&Text_icon);
+	lv_obj_t* time_field = createTime("Time: TBD", 10, 20, 200, 60);
+	lv_obj_t* mainText = createMainText("JASP: Use it and Gasp!");
+	#if SET_DATE_TIME
 		// Send Code
-		if (i == 1) {
-			dateTime.seconds = 0x00;
-			dateTime.minutes = 0x59; 
-			dateTime.hours = 0x23;
-			dateTime.date = 0;
-			dateTime.day_int = 0;
-			dateTime.month = 0;
+			dateTime.seconds = 0x15;
+			dateTime.minutes = 0x31; 
+			dateTime.hours = 0x16;
+			dateTime.date = 3;
+			dateTime.day_int = 2;
+			dateTime.month_int = 0x11;
 			dateTime.year = 0;
 		
 			stat = setTimeAndDate(&dateTime);		// Send initial time
@@ -205,8 +159,33 @@ int main(void){
 			UART_OutString("Ack Ct: ");
 			UART_OutUDec(ack_ct);
 			UART_OutString("     ");
+	#endif
+	while(1){
+		if(!isDisplayed) {
+			lv_task_handler();
+			isDisplayed = 1;
 		}
-		
+		if (updateClock) {
+			int err_code = getTimeAndDate(&dateTime);
+			char sec_arr[3], min_arr[3], hr_arr[20], day_arr[30], date_arr[3], month_arr[12];
+			bcd2arr(dateTime.seconds, sec_arr);
+			bcd2arr(dateTime.minutes, min_arr);
+			bcd2arr(dateTime.hours, hr_arr);
+			bcd2arr(dateTime.date, date_arr);
+			strcpy(day_arr, dateTime.day);
+			strcpy(month_arr, dateTime.month);
+			
+			full_time = strcat(strcat(strcat(strcat(hr_arr, ":"), min_arr), ":"), sec_arr); 
+			full_date = strcat(strcat(strcat(day_arr, date_arr), " "), month_arr);
+			displayStr = strcat(strcat(full_date, "\n"), full_time);
+			lv_label_set_align(time_label, LV_LABEL_ALIGN_CENTER);
+			lv_label_set_text(time_label, full_date);
+			updateClock = 0;
+			isDisplayed = 0;
+		}
+
+  //test display and number parser (can safely be skipped)
+	#if DEBUGPRINTS
 		/*int ctl = I2C_RTC_Recv(RTC_ADDR, 0x02);
 		UART_OutString("Ctl: ");
 		UART_OutUDec(ctl);
