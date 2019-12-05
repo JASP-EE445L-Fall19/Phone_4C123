@@ -25,14 +25,14 @@ void TerminalMenu(void);
 
 
 /**     SIM800H_Init Function
- *  @brief      Initializes UART5 and GSM module
+ *  @brief      Initializes UART55 and GSM module
  *  @details    Pins Used:
  *                  PD0 - Rst
  *                  PD1 - PS
  *                  PD2 - Key
  *                  PD3 - RI
- *                  PD4 - UART5_Rx
- *                  PD5 - UART5_Tx
+ *                  PD4 - UART55_Rx
+ *                  PD5 - UART55_Tx
  *                  PD7 - NS
  *  @note       Might have the baudrate as the input parameter
  *                  but the module automatically tunes baudrate when
@@ -42,7 +42,7 @@ void TerminalMenu(void);
 void SIM800H_Init(void) {
 	char dump;
 	
-	UART_Init(115200);
+	UART5_Init(115200);
 	SysTick_Init(25*80000);
 	// Initialize other config pins
 	SYSCTL_RCGCGPIO_R |= 0x08;			// Port D
@@ -60,27 +60,31 @@ void SIM800H_Init(void) {
 
 	// See if SIM800H is responding correctly (timeout if not)	
 	while(Fifo_Get(&dump));	
-	UART_OutString("AT\r");
+	UART5_OutString("AT\r");
 	SysTick_Wait10ms(5);
-	WaitForOK();
+//	WaitForOK();
+			SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
+		
+		SIM800H_CheckSignalStrength();
 	
 //	// Display name and revision.			Never receives OK so I check the latest revision number (8)
 //	while(Fifo_Get(&dump));
-//	UART_OutString("ATI\r");
+//	UART5_OutString("ATI\r");
 //	SysTick_Wait10ms(5);
 //	while(Fifo_Get(&dump)) {
 //		if(dump != 0x0A);	//printf("%c", dump);
 //		//SysTick_Wait10ms(10);
 //	}
-//	dump = UART_InChar();			// Doesn't interrupt even though OK is in UART FIFO
-//	dump = UART_InChar();			// Gotta d it manually
+//	dump = UART5_InChar();			// Doesn't interrupt even though OK is in UART5 FIFO
+//	dump = UART5_InChar();			// Gotta d it manually
 //	//printf("OK\r");
 //	while(Fifo_Get(&dump));
 
 //	SIM800H_SimCardNumber();
 //	
 	// Check Network
-//	UART2_OutString("AT+COPS?\r");
+//	UART52_OutString("AT+COPS?\r");
 //	//printf("AT+COPS?\r");
 //	SysTick_Wait10ms(10);
 //	WaitForOK();
@@ -100,7 +104,7 @@ void SIM800H_Init(void) {
  */
 void SIM800H_SimCardNumber(void) {
 	// Display SIM Card ID
-	UART_OutString("AT+CCID\r");
+	UART5_OutString("AT+CCID\r");
 	SysTick_Wait10ms(5);
 	WaitForOK();	
 	
@@ -116,10 +120,13 @@ void SIM800H_SimCardNumber(void) {
  */
 void SIM800H_CheckSignalStrength(void) {
 	// Check Signal Strength (dB - Higher, better)
-	UART_OutString("AT+CSQ\r");
+	UART5_OutString("AT+CSQ\r");
 	//printf("AT+CSQ\r");
 	SysTick_Wait10ms(5);
-	WaitForOK();
+//	WaitForOK();
+	char dump;
+				SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
 	
 }
 
@@ -132,7 +139,7 @@ void SIM800H_CheckSignalStrength(void) {
  */
 void SIM800H_CheckBattery(void) {
 	// Check Battery Life (second number percentage, third number battery voltage in mV);
-	UART_OutString("AT+CBC\r");
+	UART5_OutString("AT+CBC\r");
 	//printf("AT+CBC\r");
 	SysTick_Wait10ms(5);
 	WaitForOK();
@@ -147,26 +154,30 @@ void SIM800H_CheckBattery(void) {
  *	@param[in]	message[]		Null-terminated char array of message
  */
 void SIM800H_SendText(char phone[], char message[]) {
-	UART_OutString("AT+CMGF=1\r");
+	UART5_OutString("AT+CMGF=1\r");
 	SysTick_Wait10ms(5);
-	WaitForOK();
+//	WaitForOK();
+	SysTick_Wait10ms(50);
+	char dump;
+	while(Fifo_Get(&dump));
 	
 	char number[14] = {'\"','2','5','4','7','6','0','9','5','9','2','\"','\r',0};
-	UART_OutString("AT+CMGS=");
-	UART_OutString(number);
+	UART5_OutString("AT+CMGS=");
+	UART5_OutString(phone);
 	//printf("-----   AT+CMGS=%s", number);
 	SysTick_Wait10ms(50);
-	UART_OutString("message");
+	UART5_OutString(message);
 	SysTick_Wait10ms(2);
-	UART_OutChar('\r');
+	UART5_OutChar('\r');
 	SysTick_Wait10ms(2);
 	char ctrlZ[3] = {0x1A, '\r', 0}; 
-	UART_OutChar(0x1A);
+	UART5_OutChar(0x1A);
 	SysTick_Wait10ms(2);
-	UART_OutChar('\r');
+	UART5_OutChar('\r');
 	
-	WaitForOK();
-	
+//	WaitForOK();
+	SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
 	
 }
 
@@ -186,7 +197,7 @@ void SIM800H_ReadText(void) {
  *
  */
 void SIM800H_EnableBuzzer(void) {
-	UART_OutString("AT+SPWM=0,10000,5000\r");
+	UART5_OutString("AT+SPWM=0,10000,5000\r");
 	SysTick_Wait10ms(5);
 	WaitForOK();	
 	
@@ -198,7 +209,7 @@ void SIM800H_EnableBuzzer(void) {
  *
  */
 void SIM800H_PickUpPhone(void) {
-	UART_OutString("ATA\r");
+	UART5_OutString("ATA\r");
 	SysTick_Wait1ms(5);
 	
 	char OChar = 0;
@@ -245,7 +256,7 @@ void SIM800H_PickUpPhone(void) {
  *
  */
 void SIM800H_HangUpPhone(void) {
-	UART_OutString("ATH\r");
+	UART5_OutString("ATH\r");
 	SysTick_Wait1ms(5);
 	WaitForOK();	
 	
@@ -257,10 +268,10 @@ void SIM800H_HangUpPhone(void) {
  *
  */
 void SIM800H_CallPhone(char number[]) {
-	UART_OutString("ATD");
-	UART_OutString(number);
-	UART_OutChar(';');
-	UART_OutChar('\r');
+	UART5_OutString("ATD");
+	UART5_OutString(number);
+	UART5_OutChar(';');
+	UART5_OutChar('\r');
 	SysTick_Wait1ms(5);
 	
 	WaitForOK();	

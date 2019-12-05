@@ -1,6 +1,6 @@
-// UART.h
+// UART5.h
 // Runs on LM4F120/TM4C123
-// Use UART0 to implement bidirectional data transfer to and from a
+// Use UART50 to implement bidirectional data transfer to and from a
 // computer running HyperTerminal.  This time, interrupts and FIFOs
 // are used.
 // Daniel Valvano
@@ -34,32 +34,32 @@
 #define SP   0x20
 #define DEL  0x7F
 
-//------------UART_Init------------
-// Initialize the UART for 115,200 baud rate (assuming 50 MHz clock),
+//------------UART5_Init------------
+// Initialize the UART5 for 115,200 baud rate (assuming 50 MHz clock),
 // 8 bit word length, no parity bits, one stop bit, FIFOs enabled
 // Input: none
 // Output: none
-void UART_Init(int baudrate);
+void UART5_Init(int baudrate);
 
-//------------UART_InChar------------
+//------------UART5_InChar------------
 // Wait for new serial port input
 // Input: none
 // Output: ASCII code for key typed
-char UART_InChar(void);
+char UART5_InChar(void);
 
-//------------UART_OutChar------------
+//------------UART5_OutChar------------
 // Output 8-bit to serial port
 // Input: letter is an 8-bit ASCII character to be transferred
 // Output: none
-void UART_OutChar(char data);
+void UART5_OutChar(char data);
 
-//------------UART_OutString------------
+//------------UART5_OutString------------
 // Output String (NULL termination)
 // Input: pointer to a NULL-terminated string to be transferred
 // Output: none
-void UART_OutString(char *pt);
+void UART5_OutString(char *pt);
 
-//------------UART_InUDec------------
+//------------UART5_InUDec------------
 // InUDec accepts ASCII input in unsigned decimal format
 //     and converts to a 32-bit unsigned number
 //     valid range is 0 to 4294967295 (2^32-1)
@@ -67,16 +67,16 @@ void UART_OutString(char *pt);
 // Output: 32-bit unsigned number
 // If you enter a number above 4294967295, it will return an incorrect value
 // Backspace will remove last digit typed
-uint32_t UART_InUDec(void);
+uint32_t UART5_InUDec(void);
 
-//-----------------------UART_OutUDec-----------------------
+//-----------------------UART5_OutUDec-----------------------
 // Output a 32-bit number in unsigned decimal format
 // Input: 32-bit number to be transferred
 // Output: none
 // Variable format 1-10 digits with no space before or after
-void UART_OutUDec(uint32_t n);
+void UART5_OutUDec(uint32_t n);
 
-//---------------------UART_InUHex----------------------------------------
+//---------------------UART5_InUHex----------------------------------------
 // Accepts ASCII input in unsigned hexadecimal (base 16) format
 // Input: none
 // Output: 32-bit unsigned number
@@ -86,16 +86,16 @@ void UART_OutUDec(uint32_t n);
 //     value range is 0 to FFFFFFFF
 // If you enter a number above FFFFFFFF, it will return an incorrect value
 // Backspace will remove last digit typed
-uint32_t UART_InUHex(void);
+uint32_t UART5_InUHex(void);
 
-//--------------------------UART_OutUHex----------------------------
+//--------------------------UART5_OutUHex----------------------------
 // Output a 32-bit number in unsigned hexadecimal format
 // Input: 32-bit number to be transferred
 // Output: none
 // Variable format 1 to 8 digits with no space before or after
-void UART_OutUHex(uint32_t number);
+void UART5_OutUHex(uint32_t number);
 
-//------------UART_InString------------
+//------------UART5_InString------------
 // Accepts ASCII characters from the serial port
 //    and adds them to a string until <enter> is typed
 //    or until max length of the string is reached.
@@ -107,4 +107,4 @@ void UART_OutUHex(uint32_t number);
 // Input: pointer to empty buffer, size of buffer
 // Output: Null terminated string
 // -- Modified by Agustinus Darmawan + Mingjie Qiu --
-void UART_InString(char *bufPt, uint16_t max);
+void UART5_InString(char *bufPt, uint16_t max);

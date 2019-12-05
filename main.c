@@ -67,7 +67,7 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 // that the left and right columns are the same.
 #define DEBUGPRINTS 0
 #define SET_DATE_TIME 0
-#define TEST_GSM  1
+#define TEST_GSM  0
 // DEBUGWAIT is time between test prints as a parameter for the Delay() function
 // DEBUGWAIT==16,666,666 delays for 1 second between lines
 // This is useful if the computer terminal program has limited
@@ -123,7 +123,7 @@ char* displayStr;
 int chooseBox = 0;
 char* phoneNumber, *textMessageString;
 	
-int callTextBusy = 0 ;
+int textQueued = 0;
 
 void Timer1_ClockUpdate_Init(uint32_t period){
   SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
@@ -213,6 +213,7 @@ void textDelete() {
 	lv_obj_del(phoneTextArea);
 	lv_obj_del(textMessageArea);
 	lv_obj_del(callTextBtn);
+	chooseBox = 0;
 }
 /* ************ */
 
@@ -254,6 +255,7 @@ void switchTextBox() {
 		phoneNumber = lv_ta_get_text(phoneTextArea);
 		textMessageString = lv_ta_get_text(textMessageArea);
 		isDisplayed = 0;
+		textQueued = 1;
 	}
 }
 
@@ -262,7 +264,7 @@ void (*deleteScreen[])() = {mainDelete, callDelete, textDelete, callBusyDelete, 
 
 
 void handleInput(char input) {
-	if (!input) 
+	if (!input && !textQueued) 
 		return;
 	/* Main Screen Handler */
 	if (curScreen == MAIN_SCREEN) {
@@ -321,7 +323,7 @@ void handleInput(char input) {
 	
 	/* CALL BUSY HANDLER */
 	else if (curScreen == CALL_BUSY_SCREEN) {
-		if (!callTextBusy) {
+		if (1) {
 			/* Call Person 
 			SIM800H_CallPhone(phoneNumber);
 			callTextBusy = 1;
@@ -339,11 +341,14 @@ void handleInput(char input) {
 
 	/* TEXT BUSY HANDLER */
 	else if (curScreen == TEXT_BUSY_SCREEN) {
-		if (!callTextBusy) {
-			/* Text Person 
-			SIM800H_SendText(phoneNumber, textMessageString);
-			callTextBusy = 1;
-			*/
+		if (textQueued) {
+			/* Text Person */
+			char phone_schema[15] = "\"";
+			strcat(strcat(phone_schema, phoneNumber), "\"\r");
+			SIM800H_SendText(phone_schema, textMessageString);
+			lv_label_set_text(main_fn_text, "Text was successful!");
+			isDisplayed = 0;
+			textQueued = 0;
 		}
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
@@ -366,6 +371,7 @@ int main(void){
 		while(1) {
 		};
 	#else
+	SIM800H_Init();
 	UART0_Init(5);
 	UART0_OutString("Example I2C");
 	PCF8523_I2C0_Init();
@@ -378,11 +384,11 @@ int main(void){
 	#if SET_DATE_TIME
 		// Send Code
 			dateTime.seconds = 0x00;
-			dateTime.minutes = 0x12; 
-			dateTime.hours = 0x02;
+			dateTime.minutes = 0x43; 
+			dateTime.hours = 0x05;
 			dateTime.date = 5;
 			dateTime.day_int = 4;
-			dateTime.month_int = 0x12;
+			dateTime.month_int = 0x11;
 			dateTime.year = 0;
 		
 			stat = setTimeAndDate(&dateTime);		// Send initial time

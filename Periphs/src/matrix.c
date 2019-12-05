@@ -106,6 +106,7 @@ void MatrixKeypad_Init(void){
   GPIO_PORTF_CR_R = 0x1F;           // allow changes to PF4-0
   GPIO_PORTF_DEN_R |= 0x0F;        // enable digital I/O on PA5-2
   GPIO_PORTF_DIR_R &= ~0x0F;       // make PA5-2 in (PA5-2 columns)
+	
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFF0000)+0x00000000;
   GPIO_PORTF_AFSEL_R = 0;     // disable alternate functionality on PA
   GPIO_PORTF_AMSEL_R = 0;     // disable analog functionality on PA
@@ -124,10 +125,10 @@ struct Row{
   char keycode[4];};
 typedef const struct Row RowType;
 RowType ScanTab[5]={
-{   0x01, "123A" }, // row 0
-{   0x02, "456B" }, // row 1
-{   0x04, "789C" }, // row 2
-{   0x08, "*0#D" }, // row 3
+{   0x08, "123A" }, // row 0
+{   0x01, "456B" }, // row 1
+{   0x02, "789C" }, // row 2
+{   0x04, "*0#D" }, // row 3
 {   0x00, "    " }};
 
 /* Returns ASCII code for key pressed,
@@ -140,13 +141,23 @@ char MatrixKeypad_Scan(int32_t *Num){
   (*Num) = 0;
   key = 0;    // default values
   pt = &ScanTab[0];
+	int i = 0;
   while(pt->direction){
-    GPIO_PORTE_DIR_R = pt->direction;      // one output
-    GPIO_PORTE_DATA_R &= ~0x0F;            // DIRn=0, OUTn=HiZ; DIRn=1, OUTn=0
-    for(j=1; j<=10; j++);                  // very short delay
-    column = ((GPIO_PORTF_DATA_R&0x0F));// read columns
+		if (!i++) {
+			GPIO_PORTE_DIR_R &= (~0x0F);
+			GPIO_PORTF_DIR_R |= 0x08;			// PF3 output
+			GPIO_PORTF_DATA_R |= 0x08;
+		}
+		else {
+			GPIO_PORTE_DIR_R &= ~(0x0F);					// Make none output
+			GPIO_PORTF_DIR_R &= (~0x08);
+			GPIO_PORTE_DIR_R |= pt->direction;      // one output
+			GPIO_PORTE_DATA_R |= 0x0F;            // DIRn=0, OUTn=HiZ; DIRn=1, OUTn=0
+    }
+		for(j=1; j<=10; j++);                  // very short delay
+    column = ((GPIO_PORTF_DATA_R&0x07));// read columns
     for(j=0; j<=2; j++){
-      if((column&0x01)==0){
+      if((column&0x01)==1){
         key = pt->keycode[j];
         (*Num)++;
       }
