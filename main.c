@@ -117,6 +117,8 @@ char* full_date;
 char* displayStr;
 int chooseBox = 0;
 char* phoneNumber;
+	
+int callTextBusy = 0 ;
 
 void Timer1_ClockUpdate_Init(uint32_t period){
   SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
@@ -163,7 +165,7 @@ lv_obj_t *call_btn, *text_btn, *time_field, *mainText;
 void mainDisplay() {
 		call_btn = createCallIcon(&Call_icon);
 		text_btn = createTextIcon(&Text_icon);
-		time_field = createTime("Time: TBD", 10, 20, 200, 60);
+		time_field = createTime("Time: TBD", 20, 20, 200, 60);
 		mainText = createMainText("JASP: Use it and Gasp!");
 }
 
@@ -313,8 +315,18 @@ void handleInput(char input) {
 	
 	/* CALL BUSY HANDLER */
 	else if (curScreen == CALL_BUSY_SCREEN) {
+		if (!callTextBusy) {
+			/* Call Person 
+			SIM800H_CallPhone(phoneNumber);
+			callTextBusy = 1;
+			*/
+		}
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
+			/* Hang up phone 
+			SIM800H_HangUpPhone();
+			callTex0tBusy = 0;
+			*/
 			isDisplayed = 0;
 		}
 	}

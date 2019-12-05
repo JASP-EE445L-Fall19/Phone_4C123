@@ -67,7 +67,7 @@ uint32_t HeartBeat;  // incremented every 25 ms
 // Initialize Systick periodic interrupts
 // Units of period are 20ns
 // Range is up to 2^24-1
-void SysTick_Init(uint32_t period){
+/*void SysTick_Init(uint32_t period){
   NVIC_ST_CTRL_R = 0;         // disable SysTick during setup
   NVIC_ST_RELOAD_R = period - 1;// reload value
   NVIC_ST_CURRENT_R = 0;      // any write to current clears it
@@ -75,6 +75,27 @@ void SysTick_Init(uint32_t period){
                               // enable SysTick with core clock and interrupts
   NVIC_ST_CTRL_R = NVIC_ST_CTRL_ENABLE+NVIC_ST_CTRL_CLK_SRC+NVIC_ST_CTRL_INTEN;
   EnableInterrupts();
+}*/
+
+void Timer2A_MatrixCheck_Init(int32_t period){
+	volatile uint32_t delay;
+  SYSCTL_RCGCTIMER_R |= 0x04;   // 0) activate timer2
+  delay = SYSCTL_RCGCTIMER_R;          // user function
+	volatile int delay2 = 2;
+	delay2++;
+	delay2++;
+  TIMER2_CTL_R = 0x00000000;    // 1) disable timer2A during setup
+  TIMER2_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
+  TIMER2_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
+  TIMER2_TAILR_R = period - 1;    // 4) reload value
+  TIMER2_TAPR_R = 0;            // 5) bus clock resolution
+  TIMER2_ICR_R = 0x00000001;    // 6) clear timer2A timeout flag
+  TIMER2_IMR_R = 0x00000001;    // 7) arm timeout interrupt
+  NVIC_PRI5_R = (NVIC_PRI5_R&0x00FFFFFF)|0x40000000; // 8) priority 4
+// interrupts enabled in the main program after all devices initialized
+// vector number 39, interrupt number 23
+  NVIC_EN0_R = 1<<23;           // 9) enable IRQ 23 in NVIC
+  TIMER2_CTL_R = 0x00000001;    // 10) enable timer2A
 }
 
 // Initialization of Matrix keypad
@@ -141,10 +162,13 @@ void Matrix_Init(void){
   LastKey = 0;             // no key typed
   MatrixFifo_Init();
   MatrixKeypad_Init();     // Program 4.13
-  SysTick_Init(25*80000);  // Program 5.12, 25 ms polling
+  Timer2A_MatrixCheck_Init(25*80000);//SysTick_Init(25*80000);  // Program 5.12, 25 ms polling
 } 
-void SysTick_Handler(void){  char thisKey; int32_t n;
 
+void Timer2A_Handler(void) {
+//void SysTick_Handler(void){  
+	TIMER2_ICR_R = TIMER_ICR_TATOCINT; // acknowledge
+	char thisKey; int32_t n;
   thisKey = MatrixKeypad_Scan(&n); // scan 
   if((thisKey != LastKey) && (n == 1)){
     MatrixFifo_Put(thisKey);
