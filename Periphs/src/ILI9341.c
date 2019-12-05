@@ -1582,15 +1582,7 @@ void ILI9341_OutString(char *ptr){
 void ILI9341_SetTextColor(uint16_t color){
   StTextColor = color;
 }
-// Print a character to ILI9341 LCD.
-int fputc(int ch, FILE *f){
-  ILI9341_OutChar(ch);
-  return 1;
-}
-// No input from Nokia, always return data.
-int fgetc (FILE *f){
-  return 0;
-}
+
 // Function called when file error occurs.
 int ferror(FILE *f){
   /* Your implementation of ferror */

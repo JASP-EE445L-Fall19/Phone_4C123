@@ -22,24 +22,30 @@ Dialog DLL:      TCM.DLL V1.36.1.0
  
 <h2>Project:</h2>
 C:\Keil\ValvanoWareTM4C123\JASP_Phone_4C123\JASP_4C123.uvprojx
-Project File Date:  12/03/2019
+Project File Date:  12/05/2019
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'JASP_Phone'
-compiling matrix.c...
-Periphs\src\matrix.c(64): warning:  #2795-D: concatenation with "PutI++" in macro "AddIndexFifo"  does not create a valid token
-  AddIndexFifo(Matrix, 16, char, 1, 0) // create a FIFO
-Periphs\src\matrix.c(64): warning:  #2795-D: concatenation with "++" in macro "AddIndexFifo"  does not create a valid token
-  AddIndexFifo(Matrix, 16, char, 1, 0) // create a FIFO
-Periphs\src\matrix.c(64): warning:  #2795-D: concatenation with "GetI++" in macro "AddIndexFifo"  does not create a valid token
-  AddIndexFifo(Matrix, 16, char, 1, 0) // create a FIFO
-Periphs\src\matrix.c(64): warning:  #2795-D: concatenation with "++" in macro "AddIndexFifo"  does not create a valid token
-  AddIndexFifo(Matrix, 16, char, 1, 0) // create a FIFO
-Periphs\src\matrix.c: 4 warnings, 0 errors
+compiling UART.c...
+Periphs\src\UART.c(111): warning:  #223-D: function "RxFifo_Size" declared implicitly
+    while(((UART5_FR_R&UART_FR_RXFE) == 0) && (RxFifo_Size() < (FIFOSIZE - 1))){
+Periphs\src\UART.c(113): warning:  #223-D: function "RxFifo_Put" declared implicitly
+      RxFifo_Put(letter);
+Periphs\src\UART.c(120): warning:  #223-D: function "TxFifo_Size" declared implicitly
+    while(((UART5_FR_R&UART_FR_TXFF) == 0) && (TxFifo_Size() > 0)){
+Periphs\src\UART.c(121): warning:  #223-D: function "TxFifo_Get" declared implicitly
+      TxFifo_Get(&letter);
+Periphs\src\UART.c(129): warning:  #223-D: function "RxFifo_Get" declared implicitly
+    while(RxFifo_Get(&letter) == FIFOFAIL){};
+Periphs\src\UART.c(137): warning:  #223-D: function "TxFifo_Put" declared implicitly
+    while(TxFifo_Put(data) == FIFOFAIL){};
+Periphs\src\UART.c(109): warning:  #177-D: function "copyHardwareToSoftware"  was declared but never referenced
+  void static copyHardwareToSoftware(void){
+Periphs\src\UART.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=81844 RO-data=81988 RW-data=816 ZI-data=25280  
-".\Objects\JASP_4C123.axf" - 0 Error(s), 4 Warning(s).
+Program Size: Code=62436 RO-data=66648 RW-data=484 ZI-data=3764  
+".\Objects\JASP_4C123.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Software Packages used:</h2>
 

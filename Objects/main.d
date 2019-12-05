@@ -2,11 +2,17 @@
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\main.o: Drivers/inc/PCF8523.h
-.\objects\main.o: Periphs/inc/PLL.h
-.\objects\main.o: Periphs/inc/UART.h
-.\objects\main.o: Periphs/inc/ILI9341.h
 .\objects\main.o: ../inc/tm4c123gh6pm.h
+.\objects\main.o: Drivers/inc/PCF8523.h
+.\objects\main.o: Drivers/inc/SIM800H.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\main.o: Drivers/inc/../../Periphs/inc/UART.h
+.\objects\main.o: Drivers/inc/../../Periphs/inc/SysTick.h
+.\objects\main.o: Drivers/inc/../../Periphs/inc/Fifo_Custom.h
+.\objects\main.o: Periphs/inc/PLL.h
+.\objects\main.o: Periphs/inc/UART_Putty.h
+.\objects\main.o: Periphs/inc/ILI9341.h
+.\objects\main.o: Periphs/inc/matrix.h
 .\objects\main.o: UI/UI_Components.h
 .\objects\main.o: UI/../lvgl/lvgl.h
 .\objects\main.o: UI/../lvgl/src/lv_version.h
@@ -162,4 +168,3 @@
 .\objects\main.o: Bitmaps/Longhorn.h
 .\objects\main.o: Bitmaps/Call_icon.h
 .\objects\main.o: Bitmaps/Text_icon.h
-.\objects\main.o: Periphs/inc/matrix.h

@@ -427,6 +427,26 @@
               <FileType>1</FileType>
               <FilePath>.\Periphs\src\matrix.c</FilePath>
             </File>
+            <File>
+              <FileName>SIM800H.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Drivers\src\SIM800H.c</FilePath>
+            </File>
+            <File>
+              <FileName>SysTick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\SysTick.c</FilePath>
+            </File>
+            <File>
+              <FileName>Fifo_Custom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\Fifo_Custom.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART_Putty.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Periphs\src\UART_Putty.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

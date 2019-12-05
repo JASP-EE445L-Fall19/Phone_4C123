@@ -31,19 +31,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Drivers/inc/PCF8523.h"
-#include "Periphs/inc/PLL.h"
-#include "Periphs/inc/UART.h"
-#include "Periphs/inc/ILI9341.h"
 #include "../inc/tm4c123gh6pm.h"
+
+#include "Drivers/inc/PCF8523.h"
+#include "Drivers/inc/SIM800H.h"
+
+#include "Periphs/inc/PLL.h"
+#include "Periphs/inc/UART_Putty.h"
+#include "Periphs/inc/ILI9341.h"
+#include "Periphs/inc/matrix.h"
+
 #include "UI/UI_Components.h"
 #include "../lvgl/lvgl.h"
+
 #include "Bitmaps/Longhorn.h"
 #include "Bitmaps/Call_icon.h"
 #include "Bitmaps/Text_icon.h"
 
-#include "Periphs/inc/matrix.h"
-#include <string.h>
 
 LV_IMG_DECLARE(Longhorn);
 LV_IMG_DECLARE(Call_icon);
@@ -63,6 +67,7 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 // that the left and right columns are the same.
 #define DEBUGPRINTS 0
 #define SET_DATE_TIME 0
+#define TEST_GSM  1
 // DEBUGWAIT is time between test prints as a parameter for the Delay() function
 // DEBUGWAIT==16,666,666 delays for 1 second between lines
 // This is useful if the computer terminal program has limited
@@ -116,7 +121,7 @@ char* full_time;
 char* full_date;	
 char* displayStr;
 int chooseBox = 0;
-char* phoneNumber;
+char* phoneNumber, *textMessageString;
 	
 int callTextBusy = 0 ;
 
@@ -247,6 +252,7 @@ void switchTextBox() {
 		//lv_ta_set_cursor_type(textMessageArea, LV_CURSOR_NONE);
 		nextScreen = TEXT_BUSY_SCREEN;
 		phoneNumber = lv_ta_get_text(phoneTextArea);
+		textMessageString = lv_ta_get_text(textMessageArea);
 		isDisplayed = 0;
 	}
 }
@@ -333,10 +339,17 @@ void handleInput(char input) {
 
 	/* TEXT BUSY HANDLER */
 	else if (curScreen == TEXT_BUSY_SCREEN) {
+		if (!callTextBusy) {
+			/* Text Person 
+			SIM800H_SendText(phoneNumber, textMessageString);
+			callTextBusy = 1;
+			*/
+		}
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
 			isDisplayed = 0;
 		}
+		
 	}
 		
 	return;
@@ -345,8 +358,16 @@ void handleInput(char input) {
 
 int main(void){
   PLL_Init(Bus80MHz);
-  UART_Init(5);
-	UART_OutString("Example I2C");
+	#if TEST_GSM
+		UART0_Init(5);
+		UART0_OutString("Hello. A longer string");
+		SIM800H_Init();
+		SIM800H_SendText("\"5127431885\"\r", "This is Arjun with a working GSM!");
+		while(1) {
+		};
+	#else
+	UART0_Init(5);
+	UART0_OutString("Example I2C");
 	PCF8523_I2C0_Init();
 	Timer1_ClockUpdate_Init(10000000);
 	/* LittleVGL */
@@ -356,25 +377,25 @@ int main(void){
 	mainDisplay();
 	#if SET_DATE_TIME
 		// Send Code
-			dateTime.seconds = 0x15;
-			dateTime.minutes = 0x31; 
-			dateTime.hours = 0x16;
-			dateTime.date = 3;
-			dateTime.day_int = 2;
-			dateTime.month_int = 0x11;
+			dateTime.seconds = 0x00;
+			dateTime.minutes = 0x12; 
+			dateTime.hours = 0x02;
+			dateTime.date = 5;
+			dateTime.day_int = 4;
+			dateTime.month_int = 0x12;
 			dateTime.year = 0;
 		
 			stat = setTimeAndDate(&dateTime);		// Send initial time
-			UART_OutString("Send Stat: ");
-			UART_OutUDec(stat);
-			UART_OutString(" ");
-			UART_OutString("Ack Ct: ");
-			UART_OutUDec(ack_ct);
-			UART_OutString("     ");
+			UART0_OutString("Send Stat: ");
+			UART0_OutUDec(stat);
+			UART0_OutString(" ");
+			UART0_OutString("Ack Ct: ");
+			UART0_OutUDec(ack_ct);
+			UART0_OutString("     ");
 	#endif
 	while(1){
 		if (curScreen != nextScreen) {
-			//lv_obj_clean(lv_scr_act());		// Clear screen
+			lv_obj_clean(lv_scr_act());		// Clear screen
 			(*deleteScreen[curScreen])();	// Delete components
 			(*renderScreen[nextScreen])(); // Create components
 			curScreen = nextScreen;
@@ -395,9 +416,9 @@ int main(void){
   //test display and number parser (can safely be skipped)
 	#if DEBUGPRINTS
 		/*int ctl = I2C_RTC_Recv(RTC_ADDR, 0x02);
-		UART_OutString("Ctl: ");
-		UART_OutUDec(ctl);
-		UART_OutString(" ");
+		UART0_OutString("Ctl: ");
+		UART0_OutUDec(ctl);
+		UART0_OutString(" ");
 		*/
 		int err_code = getTimeAndDate(&dateTime);
 	
@@ -406,23 +427,24 @@ int main(void){
 		bcd2arr(dateTime.minutes, min_arr);
 		bcd2arr(dateTime.hours, hr_arr);
 		/* Debug Prints */
-		UART_OutString("Recv Sec: ");
-		UART_OutString(sec_arr);
-		UART_OutString(" ");
-		UART_OutString("Recv Min: ");
-		UART_OutString(min_arr);
-		UART_OutString(" ");
-		UART_OutString("Recv Hr: ");
-		UART_OutString(hr_arr);
-		UART_OutString(" ");
-		UART_OutString("Err code: ");
-		UART_OutUDec(err_code);
-		UART_OutString(" ");
-		UART_OutString("Ack Ct: ");
-		UART_OutUDec(ack_ct);
-		UART_OutString("\r\n");
+		UART0_OutString("Recv Sec: ");
+		UART0_OutString(sec_arr);
+		UART0_OutString(" ");
+		UART0_OutString("Recv Min: ");
+		UART0_OutString(min_arr);
+		UART0_OutString(" ");
+		UART0_OutString("Recv Hr: ");
+		UART0_OutString(hr_arr);
+		UART0_OutString(" ");
+		UART0_OutString("Err code: ");
+		UART0_OutUDec(err_code);
+		UART0_OutString(" ");
+		UART0_OutString("Ack Ct: ");
+		UART0_OutUDec(ack_ct);
+		UART0_OutString("\r\n");
 		
 		Delay(DEBUGWAIT/2);
 	#endif
   }
+	#endif
 }
