@@ -46,6 +46,7 @@ Copyright 2015 by Jonathan W. Valvano, valvano@mail.utexas.edu
 // Pin 7 -> Row 2 (row starting with 7)
 // Pin 8 -> Row 3 (row starting with *)
 #include <stdint.h>
+#include <string.h>
 #include "../inc/FIFO.h"
 #include "../../../inc/tm4c123gh6pm.h"
 
@@ -161,4 +162,49 @@ char Matrix_InChar(void){  char letter;
   return(letter);
 }
 
+typedef struct {
+	char num;
+	char chars[10];
+} Numpad_Schema;
 
+Numpad_Schema numSchema[10] = { {'0', {" .'!?*"}},
+																//{'1', {" 1"}},
+																{'2', {"abcABC2"}},
+																{'3', {"defDEF3"}},
+															  {'4', {"ghiGHI4"}},
+																{'5', {"jklJKL5"}},
+																{'6', {"mnoMNO6"}},
+																{'7', {"pqrsPQRS7"}},
+																{'8', {"tuvTUV8"}},
+																{'9', {"wxyzWXYZ9"}}
+															};
+
+int curIndex = 0;
+int prevInput = -1;
+/* Takes the numpad numbers and converts it to text*/
+char numpad2TextInput(char input, int* deletePrev) {
+	char convertedInput = 0;
+	*deletePrev = 0;
+	/* '1' breaks the chain*/
+	if (input == '1' && input == prevInput) {
+		//curIndex = 0;
+		//if (input == prevInput)
+			*deletePrev = 1;
+	}
+/* To move to another input */
+	if (prevInput != input) {
+		curIndex = 0;
+		prevInput = input;
+	}
+	
+	for(int i = 0; i < 10; i++) {
+		if (numSchema[i].num == input) {
+			convertedInput = numSchema[i].chars[curIndex];
+			if (curIndex)
+				*deletePrev = 1;
+			curIndex = (curIndex + 1) % strlen(numSchema[i].chars);
+			break;
+		}
+	}
+	return convertedInput;
+}

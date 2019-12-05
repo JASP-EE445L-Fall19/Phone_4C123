@@ -54,4 +54,4 @@ void Matrix_Init(void);
 // spin if Fifo is empty
 char Matrix_InChar(void);
 
-
+char numpad2TextInput(char input, int* deletePrev);

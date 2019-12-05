@@ -77,7 +77,9 @@ void lv_disp_buf_init(lv_disp_buf_t * disp_buf, void * buf1, void * buf2, uint32
 enum screens {
 	MAIN_SCREEN,
 	CALL_SCREEN,
-	TEXT_SCREEN
+	TEXT_SCREEN,
+	CALL_BUSY_SCREEN,
+	TEXT_BUSY_SCREEN
 } curScreen = MAIN_SCREEN, nextScreen = MAIN_SCREEN;
 
 // delay function for testing from sysctl.c
@@ -113,7 +115,8 @@ int updateClock = 0;
 char* full_time;
 char* full_date;	
 char* displayStr;
-lv_obj_t* phoneLabel, *textLabel;
+int chooseBox = 0;
+char* phoneNumber;
 
 void Timer1_ClockUpdate_Init(uint32_t period){
   SYSCTL_RCGCTIMER_R |= 0x02;   // 0) activate TIMER1
@@ -153,9 +156,10 @@ void getDisplayTime() {
 	lv_label_set_text(time_label, full_date);
 }
 
+lv_obj_t* phoneLabel, *textLabel, *callTextBtn;
 
+/* MAIN DISPLAY FUNCTIONS */
 lv_obj_t *call_btn, *text_btn, *time_field, *mainText;
-
 void mainDisplay() {
 		call_btn = createCallIcon(&Call_icon);
 		text_btn = createTextIcon(&Text_icon);
@@ -169,41 +173,90 @@ void mainDelete() {
 	lv_obj_del(call_btn);
 	lv_obj_del(time_field);
 }
+/* ************ */
 
+/* CALL DISPLAY FUNCTION */
 lv_obj_t* phoneTextArea, *textMessageArea;
 void callDisplay() {
 	phoneTextArea = createPhoneTextArea();
-	phoneLabel = createPhoneLabel("Phone Number");
+	lv_ta_set_cursor_type(phoneTextArea, LV_CURSOR_BLOCK);
+	
+	callTextBtn = createCallTextButton("Call (*)");
 	return;
 }
-void textDisplay() {
-	phoneTextArea = createPhoneTextArea();
-	phoneLabel = createPhoneLabel("Phone Number");
-	textMessageArea = createTextMessageArea();
-	textLabel = createTextLabel("Message");
-	return;
-}
-
 
 void callDelete() {
 	lv_obj_del(phoneTextArea);
-	lv_obj_del(phoneLabel);
+	lv_obj_del(callTextBtn);
 }
+/* ************ */
+
+
+/* TEXT DISPLAY FUNCTION */
+void textDisplay() {
+	phoneTextArea = createPhoneTextArea();
+	lv_ta_set_cursor_type(phoneTextArea, LV_CURSOR_BLOCK);
+	
+	textMessageArea = createTextMessageArea();
+	callTextBtn = createCallTextButton("Text (*)");
+	return;
+}
+
 void textDelete() {
 	lv_obj_del(phoneTextArea);
-	lv_obj_del(phoneLabel);
 	lv_obj_del(textMessageArea);
-	lv_obj_del(textLabel);
+	lv_obj_del(callTextBtn);
+}
+/* ************ */
+
+
+lv_obj_t* main_fn_text;
+/* CALL BUSY DISPLAY FUNCTIONS */
+void callBusyDisplay() {
+	char pt[25] = "Calling ";
+	main_fn_text = createMainText(strcat(pt, phoneNumber));
+}
+void callBusyDelete() {
+	lv_obj_del(main_fn_text);
+}
+/**********/
+
+
+/* TEXT BUSY DISPLAY FUNCTIONS */
+void textBusyDisplay() {
+	char pt[25] = "Texting ";
+	main_fn_text = createMainText(strcat(pt, phoneNumber));
+}
+void textBusyDelete() {
+	lv_obj_del(main_fn_text);
+}
+/**********/
+
+
+
+void switchTextBox() {
+	if (chooseBox ^= 1) {			// choose textMessageArea
+		lv_ta_set_cursor_type(phoneTextArea, LV_CURSOR_NONE);
+		lv_ta_set_cursor_type(textMessageArea, LV_CURSOR_BLOCK);
+	
+	}
+	else {
+		//lv_ta_set_cursor_type(phoneTextArea, LV_CURSOR_BLOCK);
+		//lv_ta_set_cursor_type(textMessageArea, LV_CURSOR_NONE);
+		nextScreen = TEXT_BUSY_SCREEN;
+		phoneNumber = lv_ta_get_text(phoneTextArea);
+		isDisplayed = 0;
+	}
 }
 
-void (*renderScreen[])() = {mainDisplay, callDisplay, textDisplay};	
-void (*deleteScreen[])() = {mainDelete, callDelete, textDelete};
+void (*renderScreen[])() = {mainDisplay, callDisplay, textDisplay, callBusyDisplay, textBusyDisplay};	
+void (*deleteScreen[])() = {mainDelete, callDelete, textDelete, callBusyDelete, textBusyDelete};
 
 
-int chooseBox = 0;
 void handleInput(char input) {
 	if (!input) 
 		return;
+	/* Main Screen Handler */
 	if (curScreen == MAIN_SCREEN) {
 		if (input == '*') {
 				nextScreen = CALL_SCREEN;
@@ -214,9 +267,16 @@ void handleInput(char input) {
 				isDisplayed = 0;
 		}
 	}
+	
+	/* Call Screen Handler */
 	else if (curScreen == CALL_SCREEN) {
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
+			isDisplayed = 0;
+		}
+		else if (input == '*') {
+			nextScreen = CALL_BUSY_SCREEN;
+			phoneNumber = lv_ta_get_text(phoneTextArea);
 			isDisplayed = 0;
 		}
 		else {
@@ -225,21 +285,48 @@ void handleInput(char input) {
 		}
 			
 	}
+	
+	/* Text Screen Handler */
 	else if (curScreen == TEXT_SCREEN) {
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
 			isDisplayed = 0;
 		}
 		else if (input == '*') {
-			chooseBox ^= 1;
+			switchTextBox();
 		}
 		else {
-			if (chooseBox)
-				lv_ta_add_char(textMessageArea, input);
+			if (chooseBox) {
+				// Text Message Box
+				int del_prev;
+				char disp_char = numpad2TextInput(input, &del_prev);
+				if (del_prev)
+					lv_ta_del_char(textMessageArea);
+				if (disp_char)
+					lv_ta_add_char(textMessageArea, disp_char);
+			}
 			else
+				// Phone NumberBox
 				lv_ta_add_char(phoneTextArea, input);
 		}
 	}
+	
+	/* CALL BUSY HANDLER */
+	else if (curScreen == CALL_BUSY_SCREEN) {
+		if (input == '#') {
+			nextScreen = MAIN_SCREEN;
+			isDisplayed = 0;
+		}
+	}
+
+	/* TEXT BUSY HANDLER */
+	else if (curScreen == TEXT_BUSY_SCREEN) {
+		if (input == '#') {
+			nextScreen = MAIN_SCREEN;
+			isDisplayed = 0;
+		}
+	}
+		
 	return;
 }
 
@@ -275,7 +362,7 @@ int main(void){
 	#endif
 	while(1){
 		if (curScreen != nextScreen) {
-			lv_obj_clean(lv_scr_act());		// Clear screen
+			//lv_obj_clean(lv_scr_act());		// Clear screen
 			(*deleteScreen[curScreen])();	// Delete components
 			(*renderScreen[nextScreen])(); // Create components
 			curScreen = nextScreen;

@@ -26,3 +26,5 @@ lv_obj_t* createTextMessageArea(void);
 lv_obj_t* createPhoneLabel(char* label);
 
 lv_obj_t* createTextLabel(char* label);
+
+lv_obj_t* createCallTextButton(char* text);

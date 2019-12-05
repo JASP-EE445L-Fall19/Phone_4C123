@@ -136,9 +136,12 @@ lv_obj_t* createPhoneTextArea() {
 	lv_obj_t* ta1 = lv_ta_create(lv_scr_act(), NULL);
   lv_obj_set_size(ta1, 200, 40);
   lv_obj_align(ta1, NULL, LV_ALIGN_IN_TOP_MID, 0, 40);
-  lv_ta_set_cursor_type(ta1, LV_CURSOR_BLOCK);
-  lv_ta_set_text(ta1, "");    /*Set an initial text*/
 	
+	lv_ta_set_cursor_type(ta1, LV_CURSOR_NONE);
+	/* Set placeholder text */
+  lv_ta_set_text(ta1, "");    /*Set an initial text*/
+	lv_ta_set_placeholder_text(ta1, "Phone no.");
+	lv_ta_set_style(ta1, LV_TA_STYLE_PLACEHOLDER, &lv_style_btn_ina);
 	return ta1;
 }
 
@@ -154,9 +157,23 @@ lv_obj_t* createTextMessageArea() {
 	lv_obj_t* ta1 = lv_ta_create(lv_scr_act(), NULL);
   lv_obj_set_size(ta1, 200, 120);
   lv_obj_align(ta1, NULL, LV_ALIGN_IN_TOP_MID, 0, 120);
-  lv_ta_set_cursor_type(ta1, LV_CURSOR_BLOCK);
-  lv_ta_set_text(ta1, "");    /*Set an initial text*/
 	
+	lv_ta_set_cursor_type(ta1, LV_CURSOR_NONE);
+  /* Set placeholder text */
+  lv_ta_set_text(ta1, "");    /*Set an initial text*/
+	lv_ta_set_placeholder_text(ta1, "Message");
+	lv_ta_set_style(ta1, LV_TA_STYLE_PLACEHOLDER, &lv_style_btn_ina);
 	return ta1;
+}
+
+//* Create a Button with text and size specs*/
+lv_obj_t* createCallTextButton(char* text) {
+	lv_obj_t* btn = lv_btn_create(lv_scr_act(), NULL);     /*Add a button the current screen*/
+	lv_obj_set_size(btn, 150, 60);                          /*Set its size*/
+	lv_obj_align(btn, NULL, LV_ALIGN_IN_BOTTOM_MID, 0,-10);
+	lv_obj_t* btn_label = lv_label_create(btn, NULL);          /*Add a label to the button*/
+	lv_label_set_text(btn_label, text);                     /*Set the labels text*/
+	lv_label_set_align(btn_label, LV_LABEL_ALIGN_CENTER);
+	return btn;
 }
 
