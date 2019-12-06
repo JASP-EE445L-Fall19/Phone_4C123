@@ -286,6 +286,7 @@ void handleInput(char input) {
 		}
 		else if (input == '*') {
 			nextScreen = CALL_BUSY_SCREEN;
+			textQueued = 1;
 			phoneNumber = lv_ta_get_text(phoneTextArea);
 			isDisplayed = 0;
 		}
@@ -323,18 +324,19 @@ void handleInput(char input) {
 	
 	/* CALL BUSY HANDLER */
 	else if (curScreen == CALL_BUSY_SCREEN) {
-		if (1) {
-			/* Call Person 
+		if (textQueued) {
+			/* Call Person*/ 
+			SIM800H_SetAudio();
+			SIM800H_SetSpeakerVolume();
+			SIM800H_SetMicVolume();
 			SIM800H_CallPhone(phoneNumber);
-			callTextBusy = 1;
-			*/
+			textQueued = 0;
 		}
 		if (input == '#') {
 			nextScreen = MAIN_SCREEN;
-			/* Hang up phone 
+			/* Hang up phone */ 
 			SIM800H_HangUpPhone();
-			callTex0tBusy = 0;
-			*/
+			//callTextBusy = 0;
 			isDisplayed = 0;
 		}
 	}

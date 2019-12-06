@@ -1,12 +1,12 @@
 Dependencies for Project 'JASP_4C123', Target 'JASP_Phone': (DO NOT MODIFY !)
 F (.\startup.s)(0x5DE30EA2)(--cpu Cortex-M4 -g --apcs=interwork -I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 526" --pd "TM4C123GH6PM SETA 1"--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d)
-F (.\main.c)(0x5DE8FA75)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\main.c)(0x5DE96D99)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599FA01C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599FA01C)
 I (../inc/tm4c123gh6pm.h)(0x5D6EC066)
 I (Drivers/inc/PCF8523.h)(0x5DE6DD7E)
-I (Drivers/inc/SIM800H.h)(0x5DE89823)
+I (Drivers/inc/SIM800H.h)(0x5DE96CE5)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599FA01C)
 I (Drivers/inc/../../Periphs/inc/UART.h)(0x5DE8D3D3)
 I (Drivers/inc/../../Periphs/inc/SysTick.h)(0x5DE8961A)
@@ -244,8 +244,8 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599FA01C)
 I (Periphs\src\../inc/FIFO.h)(0x5D6EC07A)
 I (Periphs\src\../../../inc/tm4c123gh6pm.h)(0x5D6EC066)
-F (.\Drivers\src\SIM800H.c)(0x5DE8DCF7)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\sim800h.o --omf_browse .\objects\sim800h.crf --depend .\objects\sim800h.d)
-I (Drivers\src\../inc/SIM800H.h)(0x5DE89823)
+F (.\Drivers\src\SIM800H.c)(0x5DE96D0F)(--c99 --gnu -c --cpu Cortex-M4 -g -O0 --apcs=interwork --split_sections-I.\RTE\_JASP_Phone-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DTM4C123GH6PM-o .\objects\sim800h.o --omf_browse .\objects\sim800h.crf --depend .\objects\sim800h.d)
+I (Drivers\src\../inc/SIM800H.h)(0x5DE96CE5)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FA01E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599FA01C)
 I (Drivers\src\../inc/../../Periphs/inc/UART.h)(0x5DE8D3D3)

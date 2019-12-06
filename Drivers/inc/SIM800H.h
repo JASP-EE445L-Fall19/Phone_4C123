@@ -106,3 +106,8 @@ void SIM800H_CallPhone(char number[]) ;
 
 
 
+void SIM800H_SetAudio(void);
+
+void SIM800H_SetMicVolume(void);
+
+void SIM800H_SetSpeakerVolume(void);

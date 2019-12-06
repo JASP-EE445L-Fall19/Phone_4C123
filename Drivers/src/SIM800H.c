@@ -146,6 +146,32 @@ void SIM800H_CheckBattery(void) {
 	
 }
 
+void SIM800H_SetAudio() {
+	UART5_OutString("AT+CHFA=1\r");
+	SysTick_Wait10ms(5);
+//	WaitForOK();
+	char dump;
+	SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
+}
+
+void SIM800H_SetMicVolume() {
+	UART5_OutString("AT+CMIC=1,15\r");
+	SysTick_Wait10ms(5);
+//	WaitForOK();
+	char dump;
+	SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
+}
+
+void SIM800H_SetSpeakerVolume() {
+	UART5_OutString("AT+CLVL=50\r");
+	SysTick_Wait10ms(5);
+//	WaitForOK();
+	char dump;
+	SysTick_Wait10ms(50);
+	while(Fifo_Get(&dump));
+}
 
 /**     SIM800H_SendText Function
  *  @brief      Sends a text to specified number
@@ -324,9 +350,6 @@ void TerminalMenu(void) {
 	//printf("[a] read the ADC 2.8V max (FONA800 & 808)\r");
 	
 }
-
-
-
 
 
 
